@@ -1,25 +1,25 @@
-# README.md for SQL-Based Backend   
+# README.md for SQL-Based Backend
 
 The backend of our Tool Lending Library project is organized as follows:
-The root directory contains the 'app' folder, which houses the main application code, a 'sql' folder for database-related scripts, and a 'requirements.txt' file listing all project dependencies.
-Within the 'app' folder, you'll find several key files and subdirectories. The 'init.py' file marks this as a Python package. 'main.py' serves as the entry point for our application. 'config.py' manages configuration settings, while 'database.py' handles database connection management.
-The 'app' folder also contains several subdirectories, each with a specific purpose:
 
-'models': Contains data models and database schemas.
-'routers': Holds API route handlers.
-'services': Manages business logic and database operations.
-'core': Includes core functionalities like security and dependencies.
-'utils': Houses utility functions.
+The root directory contains the 'app' folder, which houses the main application code, a 'sql' folder for database-related scripts, and a 'requirements.txt' file listing all project dependencies.
+
+Within the 'app' folder, you'll find several key files and subdirectories. The '__init__.py' file marks this as a Python package. 'main.py' serves as the entry point for our application. 'config.py' manages configuration settings, while 'database.py' handles database connection management.
+
+The 'app' folder also contains several subdirectories, each with a specific purpose:
+- 'models': Contains data models and database schemas.
+- 'routers': Holds API route handlers.
+- 'services': Manages business logic and database operations.
+- 'core': Includes core functionalities like security and dependencies.
+- 'utils': Houses utility functions.
 
 In the 'sql' folder, you'll find scripts for database setup and queries:
+- 'init.sql': The database initialization script.
+- 'users.sql': Queries related to user management.
+- 'tools.sql': Queries for tool-related operations.
+- 'reservations.sql': Queries handling reservation functionalities.
 
-'init.sql': The database initialization script.
-'users.sql': Queries related to user management.
-'tools.sql': Queries for tool-related operations.
-'reservations.sql': Queries handling reservation functionalities.
-```
-
-Design Decisions
+## Design Decisions
 
 1. **FastAPI Framework**: Chosen for its high performance, easy-to-use async capabilities, and automatic OpenAPI documentation.
 
@@ -29,7 +29,7 @@ Design Decisions
 
 4. **SQL Scripts**: Separate SQL files for different entities to keep queries organized and easily maintainable.
 
-5. **Separation of Concerns**: 
+5. **Separation of Concerns**:
    - `models/`: Data models and database schema definitions
    - `routers/`: API route handlers
    - `services/`: Business logic and database operations
@@ -39,7 +39,7 @@ Design Decisions
 
 7. **Authentication**: JWT-based authentication implemented in `core/security.py` and `routers/auth.py`.
 
-API Endpoints
+## API Endpoints
 
 - `/users/`: User management
 - `/tools/`: Tool catalog and management
@@ -48,7 +48,7 @@ API Endpoints
 
 For detailed API documentation, refer to the Swagger UI at `/docs` endpoint when the server is running.
 
-Development Workflow
+## Development Workflow
 
 1. Create new features in separate branches
 2. Write unit tests for new features
@@ -56,13 +56,7 @@ Development Workflow
 4. Run `pytest` for testing before committing changes
 5. When adding new database operations, create corresponding SQL queries in the appropriate SQL file
 
-Future Improvements
+## Future Improvements
 
 - Implement more advanced search and filtering for tools using complex SQL queries
 - Implement notifications system for reservations and due dates
-
-Contributors
-
-- [Fazli]
-- [Farrukh]
-- [Anna]
