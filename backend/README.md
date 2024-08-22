@@ -63,7 +63,6 @@ For detailed API documentation, refer to the Swagger UI at `/docs` endpoint when
 ## Future Improvements
 
 - Implement more advanced search and filtering for tools using complex SQL queries
-- Add a rating and review system for tools and users
 - Implement notifications system for reservations and due dates
 
 ## Contributors
