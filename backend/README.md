@@ -1,4 +1,4 @@
-# README.md for SQL-Based Backend
+# Tool Lending Library - Backend
 
 The backend of our Tool Lending Library project is organized as follows:
 
