@@ -1,16 +1,10 @@
 from fastapi import FastAPI
+from app.routers import user
+from app.database import engine
+from app.models import user as user_model
+
+user_model.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-@app.get("/")
-async def root():
-    return {"message": "Welcome to the Tool Lending Library API"}
-
-@app.get("/tools")
-async def get_tools():
-    # This is a placeholder. In the future, you'll fetch this from a database.
-    tools = [
-        {"id": 1, "name": "Hammer", "available": True},
-        {"id": 2, "name": "Drill", "available": False},
-    ]
-    return {"tools": tools}
+app.include_router(user.router)
