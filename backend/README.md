@@ -13,12 +13,6 @@ The 'app' folder also contains several subdirectories, each with a specific purp
 - 'core': Includes core functionalities like security and dependencies.
 - 'utils': Houses utility functions.
 
-In the 'sql' folder, you'll find scripts for database setup and queries:
-- 'init.sql': The database initialization script.
-- 'users.sql': Queries related to user management.
-- 'tools.sql': Queries for tool-related operations.
-- 'reservations.sql': Queries handling reservation functionalities.
-
 ## Design Decisions
 
 1. **FastAPI Framework**: Chosen for its high performance, easy-to-use async capabilities, and automatic OpenAPI documentation.
