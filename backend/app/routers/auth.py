@@ -1,3 +1,12 @@
+# app/routers/auth.py
+"""
+Authentication routes for user registration and login.
+- Provides endpoints for user registration
+- Handles user login and token generation
+- Uses user service for database operations
+- Implements basic error handling for invalid credentials
+"""
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db

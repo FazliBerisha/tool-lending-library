@@ -1,3 +1,10 @@
+# app/core/auth.py
+"""
+Authentication and authorization utilities.
+- Implements JWT token creation and verification
+- Provides dependencies for getting current user and checking roles
+"""
+
 from jose import jwt
 from datetime import datetime, timedelta
 from passlib.context import CryptContext

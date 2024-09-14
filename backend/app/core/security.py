@@ -1,3 +1,10 @@
+# app/core/security.py
+"""
+Security utilities.
+- Implements password hashing and verification
+- May include other security-related functions
+"""
+
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
