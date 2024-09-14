@@ -6,7 +6,7 @@ Defines Pydantic models for tool-related operations.
 - Tool: Schema for tool responses, including database id
 """
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 class ToolBase(BaseModel):
     name: str
@@ -14,7 +14,8 @@ class ToolBase(BaseModel):
     category: str
 
 class ToolCreate(ToolBase):
-    pass
+    condition: str = Field(..., description="The condition of the tool")
+    available: bool = Field(default=True, description="Whether the tool is available for borrowing")
 
 class Tool(ToolBase):
     id: int

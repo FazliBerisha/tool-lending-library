@@ -37,4 +37,9 @@ def create_sample_tools(db: Session = Depends(get_db)):
 
 @router.post("/", response_model=Tool)
 def create_tool(tool: ToolCreate, db: Session = Depends(get_db)):
-    return ToolService.create_tool(db, tool, owner_id=1)  
+    try:
+        return ToolService.create_tool(db, tool, owner_id=1)
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) 

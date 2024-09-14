@@ -9,6 +9,7 @@ Service layer for tool-related operations.
 from sqlalchemy.orm import Session
 from app.models.tool import Tool
 from app.schemas.tool import ToolCreate
+from fastapi import HTTPException
 
 class ToolService:
     @staticmethod
@@ -17,6 +18,16 @@ class ToolService:
 
     @staticmethod
     def create_tool(db: Session, tool: ToolCreate, owner_id: int):
+        # Add some basic validation
+        if len(tool.name) < 3:
+            raise HTTPException(status_code=400, detail="Tool name must be at least 3 characters long")
+        
+        # Check if a tool with the same name already exists for this owner
+        existing_tool = db.query(Tool).filter(Tool.name == tool.name, Tool.owner_id == owner_id).first()
+        if existing_tool:
+            raise HTTPException(status_code=400, detail="You already have a tool with this name")
+        
+        
         db_tool = Tool(**tool.dict(), owner_id=owner_id)
         db.add(db_tool)
         db.commit()
