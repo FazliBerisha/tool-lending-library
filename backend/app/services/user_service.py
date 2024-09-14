@@ -7,17 +7,22 @@ Service layer for User-related operations.
 
 from sqlalchemy.orm import Session
 from app.models.user import User
-from app.core.auth import hash_password
+from app.schemas.user import UserCreate
+from app.core.security import get_password_hash
 
 class UserService:
     @staticmethod
-    def create_user(db: Session, username: str, email: str, password: str):
-        hashed_password = hash_password(password)
-        user = User(username=username, email=email, hashed_password=hashed_password)
-        db.add(user)
+    def create_user(db: Session, user: UserCreate):
+        hashed_password = get_password_hash(user.password)
+        db_user = User(username=user.username, email=user.email, hashed_password=hashed_password)
+        db.add(db_user)
         db.commit()
-        db.refresh(user)
-        return user
+        db.refresh(db_user)
+        return db_user
+
+    @staticmethod
+    def get_user(db: Session, user_id: int):
+        return db.query(User).filter(User.id == user_id).first()
 
     @staticmethod
     def get_user_by_email(db: Session, email: str):
