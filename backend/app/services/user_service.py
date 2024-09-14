@@ -1,3 +1,10 @@
+# app/services/user_service.py
+"""
+Service layer for User-related operations.
+- Implements business logic for user management
+- Methods for creating users, getting users by email, etc.
+"""
+
 from sqlalchemy.orm import Session
 from app.models.user import User
 from app.core.auth import hash_password

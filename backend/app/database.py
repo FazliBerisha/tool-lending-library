@@ -1,3 +1,10 @@
+# app/database.py
+"""
+Database connection and session management.
+- Sets up SQLAlchemy engine and session
+- Provides a dependency for getting database sessions
+"""
+
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker

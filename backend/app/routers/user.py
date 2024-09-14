@@ -1,3 +1,11 @@
+# app/routers/user.py
+"""
+API routes for User-related operations.
+- Defines endpoints for user registration, retrieval, etc.
+- Uses UserService for business logic
+- Implements input validation and error handling
+"""
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db

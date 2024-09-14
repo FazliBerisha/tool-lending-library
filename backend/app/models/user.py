@@ -1,3 +1,10 @@
+# app/models/user.py
+"""
+SQLAlchemy model for the User table.
+- Defines User attributes (id, username, email, hashed_password)
+- Sets up relationships with other models if any
+"""
+
 from sqlalchemy import Boolean, Column, Integer, String
 from app.database import Base
 

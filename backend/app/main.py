@@ -1,3 +1,11 @@
+# app/main.py
+"""
+Main entry point for the FastAPI application.
+- Initializes the FastAPI app
+- Includes routers for different parts of the application
+- Sets up any global middleware or event handlers
+"""
+
 from fastapi import FastAPI
 from app.routers import user
 from app.database import engine
