@@ -1,4 +1,5 @@
 from pydantic import BaseModel, EmailStr
+from enum import Enum
 
 class UserCreate(BaseModel):
     username: str
@@ -13,3 +14,5 @@ class User(BaseModel):
 
     class Config:
         orm_mode = True
+
+        
