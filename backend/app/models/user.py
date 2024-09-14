@@ -1,7 +1,9 @@
-from sqlalchemy import Boolean, Column, Integer, String, Enum as SQLEnum
+from sqlalchemy import Boolean, Column, Integer, String
 from app.database import Base
 from enum import Enum
  
+
+# Anna
 class Role(Enum):
     USER = "user"
     ADMIN = "admin"
@@ -14,7 +16,8 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
-    role = Column(SQLEnum(Role), default=Role.USER)
+    role = Column(Enum(Role), default=Role.USER) # Defaults to user.
+
 
 
 
