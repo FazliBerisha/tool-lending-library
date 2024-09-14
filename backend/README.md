@@ -2,7 +2,7 @@
 
 The backend of our Tool Lending Library project is organized as follows:
 
-The root directory contains the 'app' folder, which houses the main application code, a 'sql' folder for database-related scripts, and a 'requirements.txt' file listing all project dependencies.
+The root directory contains the 'app' folder, which houses the main application code, and a 'requirements.txt' file listing all project dependencies.
 
 Within the 'app' folder, you'll find several key files and subdirectories. The '__init__.py' file marks this as a Python package. 'main.py' serves as the entry point for our application. 'config.py' manages configuration settings, while 'database.py' handles database connection management.
 
@@ -20,9 +20,7 @@ The 'app' folder also contains several subdirectories, each with a specific purp
 2. **Direct SQL Usage**: Instead of an ORM, we're using SQL queries directly for more control over database operations and to leverage the full power of SQL.
 
 3. **Modular Structure**: The project is organized into modules (models, routers, services) for better maintainability and scalability.
-
-4. **SQL Scripts**: Separate SQL files for different entities to keep queries organized and easily maintainable.
-
+   
 5. **Separation of Concerns**:
    - `models/`: Data models and database schema definitions
    - `routers/`: API route handlers
