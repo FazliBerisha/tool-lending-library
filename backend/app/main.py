@@ -1,4 +1,3 @@
-# app/main.py
 """
 Main entry point for the FastAPI application.
 - Initializes the FastAPI app

@@ -1,4 +1,3 @@
-# app/config.py
 """
 Configuration settings for the application.
 - Defines database URL
