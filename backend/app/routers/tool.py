@@ -11,6 +11,7 @@ from typing import List
 from app.database import get_db
 from app.services.tool_service import ToolService
 from app.schemas.tool import Tool, ToolCreate
+from app.core.deps import role_required
 
 router = APIRouter()
 
@@ -42,16 +43,24 @@ def get_tools_by_category(category: str, db: Session = Depends(get_db)):
     tools = ToolService.get_tools_by_category(db, category)
     return tools
 
-@router.post("/sample", status_code=201)
+# Added the role-based access control (RBAC) check using role_required to restrict this endpoint to 'admin' role
+@router.post("/sample", status_code=201, dependencies=[Depends(role_required("admin"))])
 def create_sample_tools(db: Session = Depends(get_db)):
     """
-    Create sample tool data in the database.
-    - Used for seeding the database with initial or test data.
+    Endpoint for creating sample tool data, restricted to 'admin' users.
+    - The 'role_required' dependency ensures that only 'admin' users can access this route.
+    
+    Args:
+    - db (Session): The database session to use for database operations.
+    
+    Returns:
+    - A success message when the sample tools are created.
     """
     ToolService.create_sample_tools(db)
     return {"message": "Sample tools created successfully"}
 
-@router.post("/", response_model=Tool)
+# Added the role-based access control (RBAC) check using role_required to restrict this endpoint to 'admin' role
+@router.post("/", response_model=Tool, dependencies=[Depends(role_required("admin"))])
 def create_tool(tool: ToolCreate, db: Session = Depends(get_db)):
     """
     Create a new tool with the provided data.
@@ -59,3 +68,4 @@ def create_tool(tool: ToolCreate, db: Session = Depends(get_db)):
     - Assigns ownership of the tool to a default owner (`owner_id=1`).
     """
     return ToolService.create_tool(db, tool, owner_id=1)
+

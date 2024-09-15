@@ -26,5 +26,6 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
+    role = Column(String, default="user")  # Add role column with default as 'user'
 
     tools = relationship("Tool", back_populates="owner")

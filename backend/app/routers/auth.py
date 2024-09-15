@@ -20,22 +20,33 @@ from app.core.auth import verify_password, create_access_token
 
 auth_router = APIRouter()
 
+valid_roles = ["user", "admin"]
+
 @auth_router.post("/register")
-def register_user(username: str, email: str, password: str, db: Session = Depends(get_db)):
+def register_user(username: str, email: str, password: str, role: str = "user", db: Session = Depends(get_db)):
     """
-    Registers a new user in the system.
+    Registers a new user in the system with an optional role (default is 'user').
 
     Args:
-    - username (str): The user's chosen username.
-    - email (str): The user's email address.
-    - password (str): The user's password to be hashed and stored.
-    - db (Session): Database session dependency to handle database operations.
+    - username (str): The desired username for the new user.
+    - email (str): The email address for the new user.
+    - password (str): The plaintext password, which will be hashed before storing.
+    - role (str, optional): The role of the user, default is 'user'. Must be one of the valid roles ('user', 'admin').
+    - db (Session): A database session object for interacting with the database.
+
+    Raises:
+    - HTTPException: If the provided role is invalid (i.e., not in the allowed roles).
 
     Returns:
-    - A success message upon successful registration.
+    - dict: A success message indicating successful user registration.
     """
-    user = create_user(db, username, email, password)
+    if role not in valid_roles:
+        raise HTTPException(status_code=400, detail="Invalid role")
+
+    # Creates a new user with the specified role
+    user = create_user(db, username, email, password, role)
     return {"msg": "User registered successfully"}
+
 
 @auth_router.post("/login")
 def login_user(username: str, password: str, db: Session = Depends(get_db)):
@@ -55,5 +66,6 @@ def login_user(username: str, password: str, db: Session = Depends(get_db)):
     if not user or not verify_password(password, user.hashed_password):
         raise HTTPException(status_code=400, detail="Invalid credentials")
     
-    access_token = create_access_token(data={"sub": user.username})
+    # Modified token creation to include 'role' in the token payload for RBAC purposes
+    access_token = create_access_token(data={"sub": user.username}, role=user.role)
     return {"access_token": access_token, "token_type": "bearer"}

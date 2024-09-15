@@ -41,3 +41,25 @@ def create_access_token(data: dict, role: str):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+def get_current_user_role(token: str):
+    """
+    Decodes the JWT token to retrieve the user's role.
+    - This role will be used to check if the user has sufficient permissions for an action.
+    
+    Args:
+    - token (str): The JWT token to decode.
+    
+    Returns:
+    - The user's role (str) if it's valid.
+    
+    Raises:
+    - HTTPException: If the role is missing from the token or if the token is invalid.
+    """
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        role = payload.get("role")
+        if role is None:
+            raise HTTPException(status_code=403, detail="Role not found in token")
+        return role
+    except jwt.JWTError:
+        raise HTTPException(status_code=403, detail="Invalid credentials")
