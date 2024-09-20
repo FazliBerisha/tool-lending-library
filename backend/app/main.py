@@ -1,20 +1,32 @@
 """
 Main entry point for the FastAPI application.
-- Initializes the FastAPI app
-- Includes routers for different parts of the application (users and tools)
-- Sets up database tables
+
+This module initializes the FastAPI application and sets up the various components required for the
+application to function, including routers and database tables. It is responsible for configuring
+the app, including its title, and incorporating different routers for handling various parts of the
+application such as user management, tool management, and authentication.
+
+Components:
+- `create_tables()`: Function to create database tables based on the model metadata.
+- `app`: Instance of the FastAPI application.
+- Routers: 
+  - `auth.auth_router`: Handles authentication-related routes.
+  - `user.router`: Manages user-related routes.
+  - `tool.router`: Manages tool-related routes.
 """
 
 from fastapi import FastAPI
-from app.routers import user, tool  # Add import for tool router
-from app.database import engine
-from app.models import user as user_model, tool as tool_model  # Add import for tool model
+from app.routers import user, tool, auth
+from app.config import settings
+from app.database import create_tables
 
-# Create tables for both user and tool models
-user_model.Base.metadata.create_all(bind=engine)
-tool_model.Base.metadata.create_all(bind=engine)
+# Create tables for all models
+create_tables()
 
-app = FastAPI()
+# Initialize the FastAPI application with a title from settings
+app = FastAPI(title=settings.PROJECT_NAME)
 
+# Include the routers for various parts of the application
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(user.router, prefix="/api/v1/users", tags=["users"])
 app.include_router(tool.router, prefix="/api/v1/tools", tags=["tools"])

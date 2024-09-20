@@ -1,43 +1,77 @@
 """
-This module provides essential security utilities, including password hashing, verification, and JWT token generation.
+This module provides security utilities for password hashing, verification, and JWT token generation.
 
-Key Components:
-- `pwd_context`: Configures `passlib` to use the bcrypt algorithm for secure password hashing and verification.
-
-Functions:
-- `hash_password(password: str)`: 
-  - Hashes a plain text password using bcrypt.
-  - Returns the hashed password.
-  
-- `verify_password(plain_password: str, hashed_password: str)`:
-  - Compares a plain text password with its hashed equivalent.
-  - Returns a boolean indicating whether they match.
-  
-- `create_access_token(data: dict, role: str)`:
-  - Generates a JWT access token that includes the user’s data and role.
-  - The token has an expiration time determined by `ACCESS_TOKEN_EXPIRE_MINUTES`.
-  - It is encoded using the application’s secret key (`SECRET_KEY`) and a specified algorithm (`ALGORITHM`).
+Components:
+- `pwd_context`: Configures `passlib` to use bcrypt for password hashing.
+- `hash_password`: Hashes passwords.
+- `verify_password`: Compares plain text passwords with hashed ones.
+- `create_access_token`: Generates JWT tokens with embedded user roles.
 """
 
-
-from fastapi import HTTPException
-from jose import jwt
 from datetime import datetime, timedelta
-from passlib.context import CryptContext
-from app.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+from jose import jwt, JWTError
+from fastapi import HTTPException, status
+from app.config import settings
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-def hash_password(password: str):
-    return pwd_context.hash(password)
-
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+# Secret key and algorithm for JWT encoding, loaded from settings.
+SECRET_KEY = settings.SECRET_KEY
+ALGORITHM = settings.ALGORITHM
 
 def create_access_token(data: dict, role: str):
+    """
+    Generates a JWT token with user data, role, and expiration.
+
+    Args:
+    - data (dict): Information to include in the token.
+    - role (str): User role to be embedded in the token.
+    
+    Returns:
+    - str: Encoded JWT token.
+    """
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire, "role": role})  # Include user's role in the token
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+    expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire, "role": role})
+    
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+def get_current_user_role(token: str):
+    """
+    Extracts and returns the user's role from the JWT token.
+
+    Args:
+    - token (str): JWT token.
+
+    Returns:
+    - str: User role from the token.
+
+    Raises:
+    - HTTPException: If the role is missing or the token is invalid.
+    """
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        role = payload.get("role")
+        
+        if role is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, 
+                detail="Role not found in token",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+        
+        return role
+    
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
 

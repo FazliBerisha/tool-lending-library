@@ -1,67 +1,103 @@
 """
 Service layer for managing tool-related operations.
-- Provides methods for CRUD operations on tools.
-- Implements business logic, including search and filtering by category.
-- Includes a method for creating a set of sample tools for demonstration purposes.
+
+This module provides methods to handle CRUD (Create, Read, Update, Delete) operations for tools. 
+It interacts with the database and applies any custom business rules when managing tools. 
+The service includes functionality for searching tools by name or description and filtering by category.
+
+Functions:
+- `get_tools`: Retrieves tools with pagination.
+- `create_tool`: Adds a new tool to the database.
+- `search_tools`: Searches for tools by name or description.
+- `get_tools_by_category`: Filters tools by category.
+- `create_sample_tools`: Creates a set of predefined sample tools for testing.
+- `update_tool`: Updates existing tool data.
+- `delete_tool`: Deletes a tool from the database.
 """
 
 from sqlalchemy.orm import Session
-from app.models.tool import Tool
-from app.schemas.tool import ToolCreate
+from app.models.tool import Tool  # Tool database model
+from app.schemas.tool import ToolCreate, ToolUpdate  # Pydantic models for input validation
 
 class ToolService:
+    """
+    This class contains static methods for core business logic related to tools.
+    """
+
     @staticmethod
     def get_tools(db: Session, skip: int = 0, limit: int = 100):
         """
-        Retrieve a list of tools from the database, with optional pagination.
-        :param db: Database session object.
-        :param skip: Number of records to skip (default: 0).
-        :param limit: Maximum number of records to return (default: 100).
-        :return: List of tools.
+        Retrieves a list of tools from the database with pagination.
+
+        Parameters:
+        - `db` (Session): The database session for querying.
+        - `skip` (int): Number of records to skip for pagination.
+        - `limit` (int): Maximum number of records to return.
+
+        Returns:
+        - List of tools within the specified range.
         """
         return db.query(Tool).offset(skip).limit(limit).all()
 
     @staticmethod
     def create_tool(db: Session, tool: ToolCreate, owner_id: int):
         """
-        Create a new tool in the database.
-        :param db: Database session object.
-        :param tool: Pydantic model containing the tool data.
-        :param owner_id: ID of the tool owner (user).
-        :return: The newly created tool.
+        Creates and saves a new tool in the database.
+
+        Parameters:
+        - `db` (Session): The database session for interaction.
+        - `tool` (ToolCreate): Data for the new tool.
+        - `owner_id` (int): ID of the user who owns the tool.
+
+        Returns:
+        - The newly created tool record.
         """
-        db_tool = Tool(**tool.dict(), owner_id=owner_id)
+        db_tool = Tool(**tool.dict(), owner_id=owner_id)  # Create tool instance
         db.add(db_tool)
-        db.commit()
-        db.refresh(db_tool)  # Refresh to retrieve the generated ID and any other defaults.
+        db.commit()  # Save to database
+        db.refresh(db_tool)  # Refresh with latest data
         return db_tool
 
     @staticmethod
     def search_tools(db: Session, search_term: str):
         """
-        Search tools by their name, using case-insensitive matching.
-        :param db: Database session object.
-        :param search_term: Term to search for in tool names.
-        :return: List of tools that match the search term.
+        Searches for tools by name or description using a search term.
+
+        Parameters:
+        - `db` (Session): The database session for querying.
+        - `search_term` (str): Search string for matching tools.
+
+        Returns:
+        - List of tools matching the search term.
         """
-        return db.query(Tool).filter(Tool.name.ilike(f"%{search_term}%")).all()
+        return db.query(Tool).filter(
+            Tool.name.ilike(f"%{search_term}%") | Tool.description.ilike(f"%{search_term}%")
+        ).all()
 
     @staticmethod
     def get_tools_by_category(db: Session, category: str):
         """
-        Retrieve tools by their category.
-        :param db: Database session object.
-        :param category: The category of tools to filter by.
-        :return: List of tools in the specified category.
+        Retrieves tools by a specific category.
+
+        Parameters:
+        - `db` (Session): The database session for querying.
+        - `category` (str): The category to filter tools by.
+
+        Returns:
+        - List of tools in the specified category.
         """
         return db.query(Tool).filter(Tool.category == category).all()
 
     @staticmethod
     def create_sample_tools(db: Session):
         """
-        Create a set of sample tools for testing or demonstration purposes.
-        :param db: Database session object.
-        :return: None.
+        Creates predefined sample tools for testing purposes.
+
+        Parameters:
+        - `db` (Session): The database session for saving sample tools.
+
+        Returns:
+        - List of created sample tools.
         """
         sample_tools = [
             {"name": "Power Drill", "description": "Cordless power drill", "category": "Power Tools"},
@@ -70,9 +106,55 @@ class ToolService:
             {"name": "Screwdriver Set", "description": "Set of Phillips and flathead screwdrivers", "category": "Hand Tools"},
             {"name": "Wrench Set", "description": "Set of adjustable wrenches", "category": "Hand Tools"}
         ]
-        
+
+        created_tools = []
         for tool in sample_tools:
-            db_tool = Tool(**tool, owner_id=1)  # Assume owner_id 1 for the sample tools
+            db_tool = Tool(**tool, owner_id=1)  # Assume owner_id = 1 for sample data
             db.add(db_tool)
-        
-        db.commit()  # Commit once after adding all tools
+            created_tools.append(db_tool)
+
+        db.commit()  # Save all sample tools to the database
+        for tool in created_tools:
+            db.refresh(tool)  # Refresh tool instances
+        return created_tools
+
+    @staticmethod
+    def update_tool(db: Session, tool_id: int, tool_update: ToolUpdate):
+        """
+        Updates an existing tool's data.
+
+        Parameters:
+        - `db` (Session): The database session for updating.
+        - `tool_id` (int): ID of the tool to update.
+        - `tool_update` (ToolUpdate): Data for updating the tool.
+
+        Returns:
+        - The updated tool record, or None if the tool was not found.
+        """
+        db_tool = db.query(Tool).filter(Tool.id == tool_id).first()
+        if db_tool is None:
+            return None  # Tool not found
+        for key, value in tool_update.dict(exclude_unset=True).items():
+            setattr(db_tool, key, value)  # Update only provided fields
+        db.commit()  # Save changes
+        db.refresh(db_tool)  # Refresh updated tool
+        return db_tool
+
+    @staticmethod
+    def delete_tool(db: Session, tool_id: int):
+        """
+        Deletes a tool from the database.
+
+        Parameters:
+        - `db` (Session): The database session for deletion.
+        - `tool_id` (int): ID of the tool to delete.
+
+        Returns:
+        - True if the tool was deleted, otherwise False.
+        """
+        db_tool = db.query(Tool).filter(Tool.id == tool_id).first()
+        if db_tool is None:
+            return False  # Tool not found
+        db.delete(db_tool)  # Delete tool
+        db.commit()  # Commit transaction
+        return True

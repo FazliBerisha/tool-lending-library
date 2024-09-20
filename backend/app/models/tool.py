@@ -19,12 +19,26 @@ from sqlalchemy.orm import relationship
 from app.database import Base
 
 class Tool(Base):
-    __tablename__ = "tools"
+    """
+    The Tool model represents a tool entity in the 'tools' table.
+    Each tool is linked to a user (the owner) via a foreign key.
+    """
+    __tablename__ = "tools"  # Name of the table in the database
 
+    # Primary key for each tool, unique and auto-incremented
     id = Column(Integer, primary_key=True, index=True)
+    
+    # Name of the tool, indexed for faster search performance
     name = Column(String, index=True)
+    
+    # Brief description of the tool, explaining its purpose or features
     description = Column(String)
+    
+    # Category to which the tool belongs (e.g., "Software", "Hardware"), also indexed
     category = Column(String, index=True)
+    
+    # Foreign key connecting each tool to its owner's user ID
     owner_id = Column(Integer, ForeignKey("users.id"))
 
+    # Many-to-one relationship with the User model, indicating that each tool is owned by a single user
     owner = relationship("User", back_populates="tools")

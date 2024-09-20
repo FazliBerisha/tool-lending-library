@@ -1,25 +1,20 @@
-"""
-Defines API routes for tool-related operations.
-- Provides endpoints for listing, searching, and filtering tools
-- Enables creation of new tools and sample tool data
-- Leverages ToolService for database interactions
-"""
-
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.orm import Session
 from typing import List
 from app.database import get_db
 from app.services.tool_service import ToolService
-from app.schemas.tool import Tool, ToolCreate
+from app.schemas.tool import Tool, ToolCreate, ToolUpdate
+from app.core.deps import get_current_user
+from app.models.user import User
 
 router = APIRouter()
 
 @router.get("/", response_model=List[Tool])
 def read_tools(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """
-    Fetch a list of tools with pagination support.
-    - `skip`: Number of records to skip
-    - `limit`: Maximum number of records to return
+    Retrieves a list of tools with optional pagination.
+    - `skip`: The number of items to skip (used for pagination).
+    - `limit`: The maximum number of tools to return.
     """
     tools = ToolService.get_tools(db, skip=skip, limit=limit)
     return tools
@@ -27,8 +22,8 @@ def read_tools(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 @router.get("/search/", response_model=List[Tool])
 def search_tools(search_term: str, db: Session = Depends(get_db)):
     """
-    Search tools by a specific term in their name or description.
-    - `search_term`: The term to search for within tools.
+    Searches tools by a search term (name or description).
+    - `search_term`: The keyword to search for.
     """
     tools = ToolService.search_tools(db, search_term)
     return tools
@@ -36,26 +31,71 @@ def search_tools(search_term: str, db: Session = Depends(get_db)):
 @router.get("/category/{category}", response_model=List[Tool])
 def get_tools_by_category(category: str, db: Session = Depends(get_db)):
     """
-    Retrieve tools by category.
-    - `category`: The category to filter tools by.
+    Retrieves tools based on their category.
+    - `category`: The category to filter by.
     """
     tools = ToolService.get_tools_by_category(db, category)
     return tools
 
-@router.post("/sample", status_code=201)
-def create_sample_tools(db: Session = Depends(get_db)):
+@router.post("/sample", status_code=status.HTTP_201_CREATED)
+def create_sample_tools(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """
-    Create sample tool data in the database.
-    - Used for seeding the database with initial or test data.
+    Admin-only route to create sample tool data.
+    - `current_user`: Must be an admin to create sample tools.
     """
-    ToolService.create_sample_tools(db)
-    return {"message": "Sample tools created successfully"}
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized to create sample tools")
+    created_tools = ToolService.create_sample_tools(db)
+    return {"message": "Sample tools created successfully", "tools": created_tools}
 
-@router.post("/", response_model=Tool)
-def create_tool(tool: ToolCreate, db: Session = Depends(get_db)):
+@router.post("/", response_model=Tool, status_code=status.HTTP_201_CREATED)
+def create_tool(
+    tool: ToolCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     """
-    Create a new tool with the provided data.
-    - `tool`: The details of the tool to be created.
-    - Assigns ownership of the tool to a default owner (`owner_id=1`).
+    Admin-only route to create a new tool.
+    - `tool`: The details of the tool to create.
+    - `current_user`: Must be an admin.
     """
-    return ToolService.create_tool(db, tool, owner_id=1)
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized to create tools")
+    return ToolService.create_tool(db, tool, owner_id=current_user.id)
+
+@router.put("/{tool_id}", response_model=Tool)
+def update_tool(
+    tool_id: int,
+    tool: ToolUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Admin-only route to update a tool.
+    - `tool_id`: The ID of the tool to update.
+    - `tool`: The updated tool details.
+    - `current_user`: Must be an admin.
+    """
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized to update tools")
+    updated_tool = ToolService.update_tool(db, tool_id, tool)
+    if updated_tool is None:
+        raise HTTPException(status_code=404, detail="Tool not found")
+    return updated_tool
+
+@router.delete("/{tool_id}", status_code=204)
+def delete_tool(
+    tool_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Admin-only route to delete a tool by its ID.
+    - `tool_id`: The ID of the tool to delete.
+    - `current_user`: Must be an admin.
+    """
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized to delete tools")
+    if not ToolService.delete_tool(db, tool_id):
+        raise HTTPException(status_code=404, detail="Tool not found")
+    return Response(status_code=204)

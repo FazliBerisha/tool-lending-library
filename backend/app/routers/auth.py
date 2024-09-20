@@ -1,59 +1,141 @@
 """
 Authentication routes for user registration and login.
 
-This module provides the API endpoints for user authentication:
-- Allows new users to register an account.
-- Handles user login and generates JWT tokens for authenticated sessions.
-- Leverages the user service for database operations such as user creation and lookup.
-- Implements basic error handling for invalid login attempts, ensuring security.
+This module provides API endpoints for user authentication:
+- Registers new users.
+- Authenticates users and generates JWT tokens for session management.
+- Utilizes the UserService for database operations such as user creation and lookup.
+- Implements error handling for invalid login attempts to enhance security.
 
 Routes:
-- `POST /register`: Registers a new user by accepting a username, email, and password, and stores the user's details in the database.
-- `POST /login`: Authenticates a user by verifying the provided credentials and returns a JWT access token upon successful login.
+- `POST /register`: Registers a new user with username, email, password, and optional role.
+- `POST /login`: Authenticates a user, returning a JWT access token upon successful login.
 """
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.services.user_service import create_user, get_user_by_username
-from app.core.auth import verify_password, create_access_token
+from app.services.user_service import UserService
+from app.core.security import verify_password
+from app.core.auth import create_access_token
+from app.config import settings
+from pydantic import BaseModel
 
-auth_router = APIRouter()
+# Router for handling authentication-related routes
+router = APIRouter()
 
-@auth_router.post("/register")
-def register_user(username: str, email: str, password: str, db: Session = Depends(get_db)):
+# Pydantic model for user registration
+class UserCreate(BaseModel):
     """
-    Registers a new user in the system.
+    Pydantic model for creating a new user.
+    - `username`: The user's desired username.
+    - `email`: The user's email address.
+    - `password`: The user's password.
+    - `role`: Optional role (default is 'user').
+    """
+    username: str
+    email: str
+    password: str
+    role: str = "user"
+
+# Pydantic model for user login
+class UserLogin(BaseModel):
+    """
+    Pydantic model for user login.
+    - `username`: The user's username.
+    - `password`: The user's password.
+    """
+    username: str
+    password: str
+
+@router.post("/register", status_code=status.HTTP_201_CREATED)
+def register_user(user: UserCreate, db: Session = Depends(get_db)):
+    """
+    Register a new user in the system with an optional role (default is 'user').
+    
+    Validates the provided role against the allowed roles defined in the settings.
+    Creates the user in the database through the UserService.
 
     Args:
-    - username (str): The user's chosen username.
-    - email (str): The user's email address.
-    - password (str): The user's password to be hashed and stored.
-    - db (Session): Database session dependency to handle database operations.
+    - `user`: UserCreate model containing username, email, password, and role.
+    - `db`: SQLAlchemy session for database access.
 
+    Raises:
+    - `HTTP_400_BAD_REQUEST`: If the role is invalid.
+    
     Returns:
     - A success message upon successful registration.
     """
-    user = create_user(db, username, email, password)
+    # Check if the role is valid according to the configured roles
+    if user.role not in settings.VALID_ROLES:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid role")
+    
+    # Create and save the new user in the database
+    new_user = UserService.create_user(db, user.username, user.email, user.password, user.role)
+    
     return {"msg": "User registered successfully"}
 
-@auth_router.post("/login")
-def login_user(username: str, password: str, db: Session = Depends(get_db)):
+@router.post("/login")
+def login_user(user: UserLogin, db: Session = Depends(get_db)):
     """
-    Authenticates a user and returns a JWT token.
+    Authenticate a user and return a JWT token upon successful login.
+
+    Verifies the user's credentials, and if valid, generates a JWT token.
 
     Args:
-    - username (str): The user's username.
-    - password (str): The user's plain text password.
-    - db (Session): Database session dependency to retrieve user data.
+    - `user`: UserLogin model containing username and password.
+    - `db`: SQLAlchemy session for database access.
 
-    Returns:
-    - A JSON response with the access token and token type.
-    - Raises an HTTPException if the credentials are invalid.
-    """
-    user = get_user_by_username(db, username)
-    if not user or not verify_password(password, user.hashed_password):
-        raise HTTPException(status_code=400, detail="Invalid credentials")
+    Raises:
+    - `HTTP_401_UNAUTHORIZED`: If the credentials are incorrect.
     
-    access_token = create_access_token(data={"sub": user.username})
+    Returns:
+    - A dictionary with the JWT access token and token type.
+    """
+    # Retrieve the user by username from the database
+    db_user = UserService.get_user_by_username(db, user.username)
+    
+    # If user not found or password is incorrect, raise an error
+    if not db_user or not verify_password(user.password, db_user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Generate JWT access token with user's username and role
+    access_token = create_access_token(data={"sub": db_user.username}, role=db_user.role)
+    
     return {"access_token": access_token, "token_type": "bearer"}
+
+@router.post("/token")
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    """
+    Authenticate a user using form data and return a JWT token.
+
+    Args:
+    - `form_data`: OAuth2PasswordRequestForm containing the user's username and password.
+    - `db`: SQLAlchemy session for database access.
+
+    Raises:
+    - `HTTP_401_UNAUTHORIZED`: If the credentials are incorrect.
+    
+    Returns:
+    - A dictionary with the JWT access token and token type.
+    """
+    # Get user by username from the database
+    user = UserService.get_user_by_username(db, form_data.username)
+    
+    # Verify the user's password
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Generate and return JWT access token
+    access_token = create_access_token(data={"sub": user.username}, role=user.role)
+    return {"access_token": access_token, "token_type": "bearer"}
+
