@@ -159,6 +159,7 @@ class ToolService:
         db.commit()  # Commit transaction
         return True
     
+    # gets all available tools
     @staticmethod
     def get_available_tools(db: Session, skip: int = 0, limit: int = 100):
         return db.query(Tool).filter(Tool.is_available == True).offset(skip).limit(limit).all()
