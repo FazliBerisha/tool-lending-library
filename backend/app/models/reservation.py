@@ -12,5 +12,5 @@ class Reservation(Base):
     reservation_date = Column(DateTime, default=datetime.utcnow)
     return_date = Column(DateTime, nullable=True)
 
-    tool = relationship("Tool", back_populates="reservations")
-    user = relationship("User", back_populates="reservations")
+    tool = relationship("Tool", back_populates="reservations") # For tool
+    user = relationship("User", back_populates="reservations") # For user 
