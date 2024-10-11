@@ -37,7 +37,7 @@ class ToolService:
         Returns:
         - List of tools within the specified range.
         """
-        return db.query(Tool).offset(skip).limit(limit).all()
+        return db.query(Tool).filter(Tool.is_available).offset(skip).limit(limit).all()
 
     @staticmethod
     def create_tool(db: Session, tool: ToolCreate, owner_id: int):
@@ -158,3 +158,14 @@ class ToolService:
         db.delete(db_tool)  # Delete tool
         db.commit()  # Commit transaction
         return True
+    
+    @staticmethod
+    def get_available_tools(db: Session, skip: int = 0, limit: int = 100):
+        return db.query(Tool).filter(Tool.is_available == True).offset(skip).limit(limit).all()
+    
+    
+    
+
+    
+
+    

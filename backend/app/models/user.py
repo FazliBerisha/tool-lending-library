@@ -47,3 +47,7 @@ class User(Base):
 
     # One-to-many relationship: A user can own multiple tools, linked through the `Tool` model
     tools = relationship("Tool", back_populates="owner")
+
+    reservations = relationship("Reservation", back_populates="tool")  # For Tool model
+    
+    reservations = relationship("Reservation", back_populates="user")  # For User model

@@ -5,6 +5,7 @@ from app.database import get_db
 from app.services.user_service import UserService
 from app.schemas.user import UserCreate, User
 from app.core.auth import get_current_user_role
+from app.services.tool_service import ToolService
 
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/token")
@@ -76,3 +77,4 @@ async def list_all_users(db: Session = Depends(get_db), token: str = Depends(oau
     if current_user_role != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
     return UserService.get_all_users(db)
+

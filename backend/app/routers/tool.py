@@ -6,43 +6,31 @@ from app.services.tool_service import ToolService
 from app.schemas.tool import Tool, ToolCreate, ToolUpdate
 from app.core.deps import get_current_user
 from app.models.user import User
+from app.schemas.reservation import Reservation, ReservationCreate
+from app.services.reservation_service import ReservationService
 
 router = APIRouter()
 
+def get_current_user_id(current_user: User = Depends(get_current_user)) -> int:
+    return current_user.id
+
 @router.get("/", response_model=List[Tool])
 def read_tools(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    """
-    Retrieves a list of tools with optional pagination.
-    - `skip`: The number of items to skip (used for pagination).
-    - `limit`: The maximum number of tools to return.
-    """
     tools = ToolService.get_tools(db, skip=skip, limit=limit)
     return tools
 
 @router.get("/search/", response_model=List[Tool])
 def search_tools(search_term: str, db: Session = Depends(get_db)):
-    """
-    Searches tools by a search term (name or description).
-    - `search_term`: The keyword to search for.
-    """
     tools = ToolService.search_tools(db, search_term)
     return tools
 
 @router.get("/category/{category}", response_model=List[Tool])
 def get_tools_by_category(category: str, db: Session = Depends(get_db)):
-    """
-    Retrieves tools based on their category.
-    - `category`: The category to filter by.
-    """
     tools = ToolService.get_tools_by_category(db, category)
     return tools
 
 @router.post("/sample", status_code=status.HTTP_201_CREATED)
 def create_sample_tools(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    """
-    Admin-only route to create sample tool data.
-    - `current_user`: Must be an admin to create sample tools.
-    """
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Not authorized to create sample tools")
     created_tools = ToolService.create_sample_tools(db)
@@ -54,11 +42,6 @@ def create_tool(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """
-    Admin-only route to create a new tool.
-    - `tool`: The details of the tool to create.
-    - `current_user`: Must be an admin.
-    """
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Not authorized to create tools")
     return ToolService.create_tool(db, tool, owner_id=current_user.id)
@@ -70,12 +53,6 @@ def update_tool(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """
-    Admin-only route to update a tool.
-    - `tool_id`: The ID of the tool to update.
-    - `tool`: The updated tool details.
-    - `current_user`: Must be an admin.
-    """
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Not authorized to update tools")
     updated_tool = ToolService.update_tool(db, tool_id, tool)
@@ -89,13 +66,18 @@ def delete_tool(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """
-    Admin-only route to delete a tool by its ID.
-    - `tool_id`: The ID of the tool to delete.
-    - `current_user`: Must be an admin.
-    """
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Not authorized to delete tools")
     if not ToolService.delete_tool(db, tool_id):
         raise HTTPException(status_code=404, detail="Tool not found")
     return Response(status_code=204)
+
+@router.post("/reserve/", response_model=Reservation)
+def reserve_tool(reservation: ReservationCreate, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
+    return ReservationService.create_reservation(db=db, reservation=reservation, user_id=user_id)
+
+@router.get("/available", response_model=List[Tool])
+def read_available_tools(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    tools = ToolService.get_available_tools(db, skip=skip, limit=limit)
+    return tools
+

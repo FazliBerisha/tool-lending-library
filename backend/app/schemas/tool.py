@@ -47,6 +47,7 @@ class Tool(ToolBase):
     """
     id: int
     owner_id: int
+    is_available: bool
 
     class Config:
         orm_mode = True  # Enables SQLAlchemy ORM compatibility
@@ -63,3 +64,4 @@ class ToolUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     category: Optional[str] = None
+
