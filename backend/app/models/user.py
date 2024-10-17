@@ -47,3 +47,12 @@ class User(Base):
 
     # One-to-many relationship: A user can own multiple tools, linked through the `Tool` model
     tools = relationship("Tool", back_populates="owner")
+
+    # User profile fields
+    full_name = Column(String, nullable=True)
+
+    bio = Column(String, nullable=True)
+
+    location = Column(String, nullable=True)
+
+    profile_picture = Column(String, nullable=True)  # URL to profile picture

@@ -46,6 +46,16 @@ class User(UserBase):
     username: str | None = None
     is_active: bool = True  # Default is active
     role: str  # User's role (e.g., 'user', 'admin')
+    full_name: str | None = None
+    bio: str | None = None
+    location: str | None = None
+    profile_picture: str | None = None
 
     class Config:
         orm_mode = True  # Allows ORM objects to be returned as response models
+
+class UserProfileUpdate(BaseModel):
+    full_name: str | None = None
+    bio: str | None = None
+    location: str | None = None
+    profile_picture: str | None = None

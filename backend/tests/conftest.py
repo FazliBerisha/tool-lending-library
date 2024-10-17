@@ -59,3 +59,27 @@ def client():
 
 # Override settings for testing
 settings.DATABASE_URL = SQLALCHEMY_DATABASE_URL
+
+@pytest.fixture(scope="function")
+def user_token(client, db):
+    register_response = client.post("/api/v1/auth/register", json={
+        "username": "user",
+        "email": "user@example.com",
+        "password": "userpassword",
+        "role": "user",
+        "full_name": "Test User",
+        "bio": "Test bio",
+        "location": "Test City"
+    })
+
+@pytest.fixture(scope="function")
+def admin_token(client, db):
+    register_response = client.post("/api/v1/auth/register", json={
+        "username": "admin",
+        "email": "admin@example.com",
+        "password": "adminpassword",
+        "role": "admin",
+        "full_name": "Admin User",
+        "bio": "Admin bio",
+        "location": "Admin City"
+    })

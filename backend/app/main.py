@@ -16,6 +16,7 @@ Components:
 """
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.routers import user, tool, auth
 from app.config import settings
 from app.database import create_tables
@@ -25,6 +26,15 @@ create_tables()
 
 # Initialize the FastAPI application with a title from settings
 app = FastAPI(title=settings.PROJECT_NAME)
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Allow requests from your React app
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods
+    allow_headers=["*"],  # Allow all headers
+)
 
 # Include the routers for various parts of the application
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
