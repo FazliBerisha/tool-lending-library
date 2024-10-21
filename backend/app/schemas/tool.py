@@ -52,16 +52,5 @@ class Tool(ToolBase):
     class Config:
         orm_mode = True  # Enables SQLAlchemy ORM compatibility
 
-class ToolUpdate(BaseModel):
-    """
-    Model for updating tool details. All fields are optional to allow for partial updates.
-    
-    Attributes:
-    - `name` (Optional[str]): An optional new name for the tool.
-    - `description` (Optional[str]): An optional new description for the tool.
-    - `category` (Optional[str]): An optional new category for the tool.
-    """
-    name: Optional[str] = None
-    description: Optional[str] = None
-    category: Optional[str] = None
+
 

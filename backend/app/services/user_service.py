@@ -20,7 +20,7 @@ from sqlalchemy.orm import Session
 from app.models.user import User
 from app.core.security import get_password_hash
 from app.config import VALID_ROLES
-from app.schemas.user import UserCreate
+from app.schemas.user import UserCreate, UserProfileUpdate  # Add UserProfileUpdate here
 
 class UserService:
     @staticmethod
@@ -148,3 +148,39 @@ class UserService:
         - List[User]: A list of all user records in the database.
         """
         return db.query(User).all()
+
+    @staticmethod
+    def get_user_profile(db: Session, user_id: int):
+        """
+        Retrieve a user's profile by their ID.
+
+        Args:
+            db (Session): The database session.
+            user_id (int): The ID of the user whose profile is being retrieved.
+
+        Returns:
+            User: The user's profile if found, None otherwise.
+        """
+        return db.query(User).filter(User.id == user_id).first()
+
+    @staticmethod
+    def update_user_profile(db: Session, user_id: int, profile_data: UserProfileUpdate):
+        """
+        Update a user's profile.
+
+        Args:
+            db (Session): The database session.
+            user_id (int): The ID of the user whose profile is being updated.
+            profile_data (UserProfileUpdate): The new profile data.
+
+        Returns:
+            User: The updated user profile if found and updated, None otherwise.
+        """
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            return None
+        for key, value in profile_data.dict(exclude_unset=True).items():
+            setattr(user, key, value)
+        db.commit()
+        db.refresh(user)
+        return user

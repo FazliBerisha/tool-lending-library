@@ -46,6 +46,8 @@ class Tool(Base):
 
     is_available = Column(Boolean, default=True)
 
-    reservations = relationship("Reservation", back_populates="tool")  # For Tool model
+    reservations = relationship("Reservation", back_populates="tool")
+
+   
     
-    reservations = relationship("Reservation", back_populates="user")  # For User model
+ 

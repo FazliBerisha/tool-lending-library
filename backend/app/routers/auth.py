@@ -81,22 +81,18 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
     """
     Authenticate a user and return a JWT token upon successful login.
 
-    Verifies the user's credentials, and if valid, generates a JWT token.
-
     Args:
-    - `user`: UserLogin model containing username and password.
-    - `db`: SQLAlchemy session for database access.
+    - user: UserLogin model containing username and password.
+    - db: SQLAlchemy session for database access.
 
-    Raises:
-    - `HTTP_401_UNAUTHORIZED`: If the credentials are incorrect.
-    
     Returns:
     - A dictionary with the JWT access token and token type.
+
+    Raises:
+    - HTTP_401_UNAUTHORIZED: If the credentials are incorrect.
     """
-    # Retrieve the user by username from the database
     db_user = UserService.get_user_by_username(db, user.username)
     
-    # If user not found or password is incorrect, raise an error
     if not db_user or not verify_password(user.password, db_user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -104,7 +100,6 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # Generate JWT access token with user's username and role
     access_token = create_access_token(data={"sub": db_user.username}, role=db_user.role)
     
     return {"access_token": access_token, "token_type": "bearer"}
@@ -138,4 +133,3 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     # Generate and return JWT access token
     access_token = create_access_token(data={"sub": user.username}, role=user.role)
     return {"access_token": access_token, "token_type": "bearer"}
-

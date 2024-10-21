@@ -72,12 +72,4 @@ def delete_tool(
         raise HTTPException(status_code=404, detail="Tool not found")
     return Response(status_code=204)
 
-@router.post("/reserve/", response_model=Reservation)
-def reserve_tool(reservation: ReservationCreate, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
-    return ReservationService.create_reservation(db=db, reservation=reservation, user_id=user_id)
-
-@router.get("/available", response_model=List[Tool])
-def read_available_tools(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    tools = ToolService.get_available_tools(db, skip=skip, limit=limit)
-    return tools
 

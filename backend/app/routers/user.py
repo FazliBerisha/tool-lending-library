@@ -3,9 +3,8 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.services.user_service import UserService
-from app.schemas.user import UserCreate, User
-from app.core.auth import get_current_user_role
-from app.services.tool_service import ToolService
+from app.schemas.user import UserCreate, User, UserProfileUpdate
+from app.core.auth import get_current_user_role, get_current_user
 
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/token")
@@ -78,3 +77,55 @@ async def list_all_users(db: Session = Depends(get_db), token: str = Depends(oau
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
     return UserService.get_all_users(db)
 
+@router.get("/profile/{user_id}", response_model=User)
+def get_user_profile(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """
+    Retrieve a user's profile.
+    
+    Args:
+        user_id (int): The ID of the user whose profile is being requested.
+        db (Session): The database session.
+        current_user (User): The currently authenticated user.
+
+    Returns:
+        User: The requested user's profile.
+
+    Raises:
+        HTTPException: 404 if user not found, 403 if unauthorized to view the profile.
+    """
+    profile = UserService.get_user_profile(db, user_id)
+    if profile is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    if current_user.id != user_id and current_user.role != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to view this profile")
+    return profile
+
+@router.put("/profile/{user_id}", response_model=User)
+def update_user_profile(
+    user_id: int,
+    profile_data: UserProfileUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Update a user's profile.
+    
+    Args:
+        user_id (int): The ID of the user whose profile is being updated.
+        profile_data (UserProfileUpdate): The new profile data.
+        db (Session): The database session.
+        current_user (User): The currently authenticated user.
+
+    Returns:
+        User: The updated user profile.
+
+    Raises:
+        HTTPException: 404 if user not found, 403 if unauthorized to update the profile.
+    """
+    user = UserService.get_user_profile(db, user_id)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    if current_user.id != user_id and current_user.role != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to update this profile")
+    updated_profile = UserService.update_user_profile(db, user_id, profile_data)
+    return updated_profile
