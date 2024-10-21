@@ -196,6 +196,20 @@ class ToolService:
             db.refresh(tool)
         return tool
     
+    @staticmethod
+    def get_one_tool(db: Session, tool_id: int):
+        """
+        Retrieves a single tool by its ID.
+
+        Parameters:
+        - `db` (Session): The database session.
+        - `tool_id` (int): The ID of the tool to retrieve.
+
+        Returns:
+        - Tool: The tool object if found, otherwise None.
+        """
+        return db.query(Tool).filter(Tool.id == tool_id).first()
+    
     
     
     

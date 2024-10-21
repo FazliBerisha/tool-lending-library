@@ -16,7 +16,8 @@ Components:
 """
 
 from fastapi import FastAPI
-from app.routers import user, tool, auth
+from fastapi.middleware.cors import CORSMiddleware
+from app.routers import user, tool, auth, reservation
 from app.config import settings
 from app.database import create_tables
 
@@ -40,3 +41,4 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(user.router, prefix="/api/v1/users", tags=["users"])
 app.include_router(tool.router, prefix="/api/v1/tools", tags=["tools"])
+app.include_router(reservation.router, prefix="/api/v1/reservations", tags=["reservation"]) 

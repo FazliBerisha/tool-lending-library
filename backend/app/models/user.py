@@ -56,3 +56,6 @@ class User(Base):
     location = Column(String, nullable=True)
 
     profile_picture = Column(String, nullable=True)  # URL to profile picture
+
+    # Add the relationship to Reservation
+    reservations = relationship("Reservation", back_populates="user")
