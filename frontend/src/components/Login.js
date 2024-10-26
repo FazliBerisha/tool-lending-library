@@ -62,6 +62,11 @@ export default function Login() {
         localStorage.setItem('token', data.access_token);
         localStorage.setItem('username', username);
         localStorage.setItem('role', data.role);
+        localStorage.setItem('userId', data.user_id);
+        
+        // Dispatch custom event for navbar update
+        window.dispatchEvent(new Event('loginStateChange'));
+        
         setNotification({ message: 'Login successful!', severity: 'success' });
         setTimeout(() => navigate('/'), 2000);
       } else {

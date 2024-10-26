@@ -86,7 +86,7 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
     - db: SQLAlchemy session for database access.
 
     Returns:
-    - A dictionary with the JWT access token and token type.
+    - A dictionary with the JWT access token, token type, user ID, and role.
 
     Raises:
     - HTTP_401_UNAUTHORIZED: If the credentials are incorrect.
@@ -102,7 +102,12 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
     
     access_token = create_access_token(data={"sub": db_user.username}, role=db_user.role)
     
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user_id": db_user.id,
+        "role": db_user.role
+    }
 
 @router.post("/token")
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
