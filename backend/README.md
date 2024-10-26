@@ -44,11 +44,5 @@ For detailed API documentation, refer to the Swagger UI at `/docs` endpoint when
 
 1. Create new features in separate branches
 2. Write unit tests for new features
-3. Use `black` for code formatting
-4. Run `pytest` for testing before committing changes
-5. When adding new database operations, create corresponding SQL queries in the appropriate SQL file
-
-## Future Improvements
-
-- Implement more advanced search and filtering for tools using complex SQL queries
-- Implement notifications system for reservations and due dates
+3. Run `pytest` for testing before committing changes
+4. When adding new database operations, create corresponding SQL queries in the appropriate SQL file
