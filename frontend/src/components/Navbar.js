@@ -61,21 +61,102 @@ const Navbar = () => {
   };
 
   return (
-    <AppBar position="static" color="primary">
+    <AppBar position="static" sx={{ 
+      backgroundColor: 'transparent', 
+      boxShadow: 'none',
+      borderBottom: '1px solid rgba(76, 175, 80, 0.1)' // Subtle green border
+    }}>
       <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <Typography 
+          variant="h6" 
+          component="div" 
+          sx={{ 
+            flexGrow: 0.5,
+            color: '#4caf50', // Green text
+            fontWeight: 'bold'
+          }}
+        >
           Tool Lending Library
         </Typography>
-        <Button color="inherit" component={RouterLink} to="/" startIcon={<HomeIcon />}>
-          Home
-        </Button>
-        <Button color="inherit" component={RouterLink} to="/browse" startIcon={<BuildIcon />}>
-          Browse Tools
-        </Button>
+
+        {/* Centered Navigation Buttons */}
+        <Box sx={{ 
+          position: 'absolute',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          display: 'flex',
+          gap: 2
+        }}>
+          <Button 
+            component={RouterLink} 
+            to="/" 
+            startIcon={<HomeIcon />}
+            sx={{
+              color: '#4caf50',
+              //border: '2px solid #4caf50',
+              borderRadius: '8px',
+              padding: '6px 16px',
+              '&:hover': {
+                backgroundColor: 'rgba(76, 175, 80, 0.08)',
+                borderColor: '#45a049'
+              }
+            }}
+          >
+            Home
+          </Button>
+          <Button 
+            component={RouterLink} 
+            to="/browse" 
+            startIcon={<BuildIcon />}
+            sx={{
+              color: '#4caf50',
+              //border: '2px solid #4caf50',
+              borderRadius: '8px',
+              padding: '6px 16px',
+              '&:hover': {
+                backgroundColor: 'rgba(76, 175, 80, 0.08)',
+                borderColor: '#45a049'
+              }
+            }}
+          >
+            Browse Tools
+          </Button>
+        </Box>
+
         <Box sx={{ flexGrow: 1 }} />
+
+        {/* Right-side elements */}
         {isLoggedIn ? (
           <>
-            <IconButton color="inherit" onClick={handleMenu} aria-label="account">
+            {localStorage.getItem('role') === 'admin' && (
+              <Button 
+                component={RouterLink} 
+                to="/admin/tools" 
+                startIcon={<BuildIcon />}
+                sx={{
+                  color: '#4caf50',
+                  border: '2px solid #4caf50',
+                  borderRadius: '8px',
+                  marginRight: 2,
+                  padding: '6px 16px',
+                  '&:hover': {
+                    backgroundColor: 'rgba(76, 175, 80, 0.08)',
+                    borderColor: '#45a049'
+                  }
+                }}
+              >
+                Manage Tools
+              </Button>
+            )}
+            <IconButton 
+              onClick={handleMenu} 
+              sx={{ 
+                color: '#4caf50',
+                '&:hover': {
+                  backgroundColor: 'rgba(76, 175, 80, 0.08)'
+                }
+              }}
+            >
               <AccountCircleIcon />
             </IconButton>
             <Menu
@@ -96,23 +177,33 @@ const Navbar = () => {
               <MenuItem onClick={handleProfile}>Profile</MenuItem>
               <MenuItem onClick={handleLogout}>Logout</MenuItem>
             </Menu>
-            <IconButton color="inherit" aria-label="settings">
+            <IconButton 
+              sx={{ 
+                color: '#4caf50',
+                '&:hover': {
+                  backgroundColor: 'rgba(76, 175, 80, 0.08)'
+                }
+              }}
+            >
               <SettingsIcon />
             </IconButton>
           </>
         ) : (
-          <Button color="inherit" component={RouterLink} to="/login">
-            Login
-          </Button>
-        )}
-        {isLoggedIn && localStorage.getItem('role') === 'admin' && (
           <Button 
-            color="inherit" 
             component={RouterLink} 
-            to="/admin/tools" 
-            startIcon={<BuildIcon />}
+            to="/login"
+            sx={{
+              color: '#4caf50',
+              border: '2px solid #4caf50',
+              borderRadius: '8px',
+              padding: '6px 16px',
+              '&:hover': {
+                backgroundColor: 'rgba(76, 175, 80, 0.08)',
+                borderColor: '#45a049'
+              }
+            }}
           >
-            Manage Tools
+            Login
           </Button>
         )}
       </Toolbar>
