@@ -46,6 +46,7 @@ const UserProfile = () => {
       const userId = localStorage.getItem('userId');
       const token = localStorage.getItem('token');
       
+      // Use the regular profile endpoint for all users
       const response = await fetch(`http://localhost:8000/api/v1/users/profile/${userId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -77,6 +78,7 @@ const UserProfile = () => {
       const userId = localStorage.getItem('userId');
       const token = localStorage.getItem('token');
       
+      // Use the regular profile endpoint for all users
       const response = await fetch(`http://localhost:8000/api/v1/users/profile/${userId}`, {
         method: 'PUT',
         headers: {
