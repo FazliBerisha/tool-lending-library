@@ -5,6 +5,8 @@ import HomeIcon from '@mui/icons-material/Home';
 import BuildIcon from '@mui/icons-material/Build';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SettingsIcon from '@mui/icons-material/Settings';
+import ArticleIcon from '@mui/icons-material/Article';
+import InfoIcon from '@mui/icons-material/Info';
 
 const Navbar = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -93,12 +95,26 @@ const Navbar = () => {
             startIcon={<HomeIcon />}
             sx={{
               color: '#4caf50',
-              //border: '2px solid #4caf50',
               borderRadius: '8px',
               padding: '6px 16px',
+              position: 'relative',
               '&:hover': {
                 backgroundColor: 'rgba(76, 175, 80, 0.08)',
-                borderColor: '#45a049'
+              },
+              '&::after': {
+                content: '""',
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                width: '100%',
+                height: '2px',
+                backgroundColor: '#4caf50',
+                transform: 'scaleX(0)',
+                transition: 'transform 0.3s ease-in-out',
+                transformOrigin: 'center'
+              },
+              '&:hover::after': {
+                transform: 'scaleX(1)'
               }
             }}
           >
@@ -106,20 +122,96 @@ const Navbar = () => {
           </Button>
           <Button 
             component={RouterLink} 
+            to="/blog" 
+            startIcon={<ArticleIcon />}
+            sx={{
+              color: '#4caf50',
+              borderRadius: '8px',
+              padding: '6px 16px',
+              position: 'relative',
+              '&:hover': {
+                backgroundColor: 'rgba(76, 175, 80, 0.08)',
+              },
+              '&::after': {
+                content: '""',
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                width: '100%',
+                height: '2px',
+                backgroundColor: '#4caf50',
+                transform: 'scaleX(0)',
+                transition: 'transform 0.3s ease-in-out',
+                transformOrigin: 'center'
+              },
+              '&:hover::after': {
+                transform: 'scaleX(1)'
+              }
+            }}
+          >
+            Blog
+          </Button>
+          <Button 
+            component={RouterLink} 
             to="/browse" 
             startIcon={<BuildIcon />}
             sx={{
               color: '#4caf50',
-              //border: '2px solid #4caf50',
               borderRadius: '8px',
               padding: '6px 16px',
+              position: 'relative',
               '&:hover': {
                 backgroundColor: 'rgba(76, 175, 80, 0.08)',
-                borderColor: '#45a049'
+              },
+              '&::after': {
+                content: '""',
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                width: '100%',
+                height: '2px',
+                backgroundColor: '#4caf50',
+                transform: 'scaleX(0)',
+                transition: 'transform 0.3s ease-in-out',
+                transformOrigin: 'center'
+              },
+              '&:hover::after': {
+                transform: 'scaleX(1)'
               }
             }}
           >
             Browse Tools
+          </Button>
+          <Button 
+            component={RouterLink} 
+            to="/about" 
+            startIcon={<InfoIcon />}
+            sx={{
+              color: '#4caf50',
+              borderRadius: '8px',
+              padding: '6px 16px',
+              position: 'relative',
+              '&:hover': {
+                backgroundColor: 'rgba(76, 175, 80, 0.08)',
+              },
+              '&::after': {
+                content: '""',
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                width: '100%',
+                height: '2px',
+                backgroundColor: '#4caf50',
+                transform: 'scaleX(0)',
+                transition: 'transform 0.3s ease-in-out',
+                transformOrigin: 'center'
+              },
+              '&:hover::after': {
+                transform: 'scaleX(1)'
+              }
+            }}
+          >
+            About Us
           </Button>
         </Box>
 
