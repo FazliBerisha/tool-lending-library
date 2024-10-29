@@ -10,7 +10,6 @@ import {
   Box,
   Grid,
   Typography,
-  Container,
 } from '@mui/material';
 import BuildIcon from '@mui/icons-material/Build';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -84,7 +83,7 @@ export default function Register() {
           sm={4}
           md={7}
           sx={{
-            backgroundImage: 'url(https://source.unsplash.com/featured/?construction,tools)',
+            backgroundImage: 'url(https://source.unsplash.com/featured/?tools,workshop)',
             backgroundRepeat: 'no-repeat',
             backgroundColor: (t) =>
               t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
@@ -108,64 +107,56 @@ export default function Register() {
             <Typography component="h1" variant="h4" sx={{ mb: 2, color: 'primary.main', fontWeight: 'bold' }}>
               Tool Lending Library
             </Typography>
-            <Typography component="h2" variant="h5" sx={{ mb: 2 }}>
+            <Typography component="h2" variant="h5">
               Sign up
             </Typography>
-            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3, width: '100%' }}>
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <TextField
-                    autoComplete="username"
-                    name="username"
-                    required
-                    fullWidth
-                    id="username"
-                    label="Username"
-                    autoFocus
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    sx={{ bgcolor: 'background.paper' }}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    required
-                    fullWidth
-                    id="email"
-                    label="Email Address"
-                    name="email"
-                    autoComplete="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    sx={{ bgcolor: 'background.paper' }}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    required
-                    fullWidth
-                    name="password"
-                    label="Password"
-                    type="password"
-                    id="password"
-                    autoComplete="new-password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    sx={{ bgcolor: 'background.paper' }}
-                  />
-                </Grid>
-              </Grid>
+            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="username"
+                label="Username"
+                name="username"
+                autoComplete="username"
+                autoFocus
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="email"
+                label="Email Address"
+                name="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="password"
+                label="Password"
+                type="password"
+                id="password"
+                autoComplete="new-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
               <Button
                 type="submit"
                 fullWidth
                 variant="contained"
-                sx={{ mt: 3, mb: 2, bgcolor: 'primary.main', color: 'white', '&:hover': { bgcolor: 'primary.dark' } }}
+                sx={{ mt: 3, mb: 2 }}
               >
                 Sign Up
               </Button>
-              <Grid container justifyContent="flex-end">
+              <Grid container>
                 <Grid item>
-                  <Link component={RouterLink} to="/login" variant="body2" sx={{ color: 'primary.main' }}>
+                  <Link component={RouterLink} to="/login" variant="body2">
                     Already have an account? Sign in
                   </Link>
                 </Grid>

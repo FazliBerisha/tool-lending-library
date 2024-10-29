@@ -50,6 +50,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
     handleClose();
+    handleSettingsClose();
     localStorage.removeItem('token');
     localStorage.removeItem('username');
     localStorage.removeItem('userId');
@@ -60,6 +61,16 @@ const Navbar = () => {
     
     setIsLoggedIn(false);
     navigate('/login');
+  };
+
+  const [settingsAnchorEl, setSettingsAnchorEl] = useState(null);
+
+  const handleSettingsMenu = (event) => {
+    setSettingsAnchorEl(event.currentTarget);
+  };
+
+  const handleSettingsClose = () => {
+    setSettingsAnchorEl(null);
   };
 
   return (
@@ -255,7 +266,7 @@ const Navbar = () => {
               id="menu-appbar"
               anchorEl={anchorEl}
               anchorOrigin={{
-                vertical: 'top',
+                vertical: 'bottom',
                 horizontal: 'right',
               }}
               keepMounted
@@ -267,9 +278,10 @@ const Navbar = () => {
               onClose={handleClose}
             >
               <MenuItem onClick={handleProfile}>Profile</MenuItem>
-              <MenuItem onClick={handleLogout}>Logout</MenuItem>
+              <MenuItem onClick={handleClose} component={RouterLink} to="/reservations">Reservations</MenuItem>
             </Menu>
             <IconButton 
+              onClick={handleSettingsMenu}
               sx={{ 
                 color: '#4caf50',
                 '&:hover': {
@@ -279,6 +291,23 @@ const Navbar = () => {
             >
               <SettingsIcon />
             </IconButton>
+            <Menu
+              id="settings-menu"
+              anchorEl={settingsAnchorEl}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right',
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              open={Boolean(settingsAnchorEl)}
+              onClose={handleSettingsClose}
+            >
+              <MenuItem onClick={handleLogout}>Logout</MenuItem>
+            </Menu>
           </>
         ) : (
           <Button 
