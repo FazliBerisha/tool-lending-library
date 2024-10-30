@@ -12,12 +12,14 @@ import {
   Pagination,
   CircularProgress,
   Alert,
-  InputAdornment
+  InputAdornment,
+  Button
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import BuildIcon from '@mui/icons-material/Build';
 import { styled } from '@mui/material/styles';
 import { debounce } from 'lodash'; // You might need to install lodash: npm install lodash
+import { useNavigate } from 'react-router-dom';
 
 const StyledCard = styled(Card)(({ theme }) => ({
   height: '100%',
@@ -47,6 +49,7 @@ const BrowseTools = () => {
   const [category, setCategory] = useState('All');
   const [page, setPage] = useState(1);
   const itemsPerPage = 12;
+  const navigate = useNavigate();
 
   const fetchTools = React.useCallback(async () => {
     try {
@@ -82,6 +85,10 @@ const BrowseTools = () => {
     }, 300),
     []
   );
+
+  const handleReserve = (toolId) => {
+    navigate('/reservations', { state: { selectedToolId: toolId } });
+  };
 
   if (loading) {
     return (
@@ -155,6 +162,16 @@ const BrowseTools = () => {
                 <Typography variant="caption" color="primary" sx={{ mt: 1, display: 'block' }}>
                   {tool.category}
                 </Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  sx={{ mt: 2 }}
+                  disabled={!tool.is_available}
+                  onClick={() => handleReserve(tool.id)}
+                >
+                  {tool.is_available ? 'Reserve' : 'Not Available'}
+                </Button>
               </CardContent>
             </StyledCard>
           </Grid>

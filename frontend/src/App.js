@@ -10,6 +10,7 @@ import UserProfile from './components/UserProfile';
 import BrowseTools from './components/BrowseTools';
 import AdminToolsPanel from './components/AdminToolsPanel';
 import ProtectedRoute from './components/ProtectedRoute';
+import ReservationPanel from './components/ReservationPanel';
 
 const theme = createTheme({
   palette: {
@@ -42,6 +43,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <AdminToolsPanel />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/reservations" 
+            element={
+              <ProtectedRoute>
+                <ReservationPanel />
               </ProtectedRoute>
             } 
           />
