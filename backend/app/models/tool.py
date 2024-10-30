@@ -12,6 +12,7 @@ Attributes:
 
 Relationships:
 - `owner`: Establishes a many-to-one relationship with the User model, linking tools to their respective owners.
+- `reservations`: Establishes a many-to-one relationship with the Reservation model, linking tools to their respective reservations.
 """
 
 from sqlalchemy import Column, Integer, String, ForeignKey
@@ -42,3 +43,6 @@ class Tool(Base):
 
     # Many-to-one relationship with the User model, indicating that each tool is owned by a single user
     owner = relationship("User", back_populates="tools")
+
+    # Many-to-one relationship with the Reservation model, indicating that each tool can have multiple reservations
+    reservations = relationship("Reservation", back_populates="tool")

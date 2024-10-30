@@ -12,12 +12,14 @@ import {
   Pagination,
   CircularProgress,
   Alert,
-  InputAdornment
+  InputAdornment,
+  Button
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import BuildIcon from '@mui/icons-material/Build';
 import { styled } from '@mui/material/styles';
 import { debounce } from 'lodash'; // You might need to install lodash: npm install lodash
+import ReserveTool from './ReserveTool';
 
 const StyledCard = styled(Card)(({ theme }) => ({
   height: '100%',
@@ -47,6 +49,8 @@ const BrowseTools = () => {
   const [category, setCategory] = useState('All');
   const [page, setPage] = useState(1);
   const itemsPerPage = 12;
+  const [selectedTool, setSelectedTool] = useState(null);
+  const [reserveDialogOpen, setReserveDialogOpen] = useState(false);
 
   const fetchTools = React.useCallback(async () => {
     try {
@@ -155,6 +159,17 @@ const BrowseTools = () => {
                 <Typography variant="caption" color="primary" sx={{ mt: 1, display: 'block' }}>
                   {tool.category}
                 </Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => {
+                    setSelectedTool(tool);
+                    setReserveDialogOpen(true);
+                  }}
+                  sx={{ mt: 2 }}
+                >
+                  Reserve
+                </Button>
               </CardContent>
             </StyledCard>
           </Grid>
@@ -169,6 +184,17 @@ const BrowseTools = () => {
           color="primary"
         />
       </Box>
+
+      {selectedTool && (
+        <ReserveTool
+          tool={selectedTool}
+          open={reserveDialogOpen}
+          onClose={() => {
+            setReserveDialogOpen(false);
+            setSelectedTool(null);
+          }}
+        />
+      )}
     </Container>
   );
 };

@@ -13,6 +13,7 @@ Key Components:
 
 Relationships:
 - `tools`: Defines a one-to-many relationship with the `Tool` model, linking tools to their respective owners.
+- `reservations`: Defines a one-to-many relationship with the `Reservation` model, linking reservations to their respective users.
 """
 
 from sqlalchemy import Boolean, Column, Integer, String, Enum
@@ -56,3 +57,6 @@ class User(Base):
     location = Column(String, nullable=True)
 
     profile_picture = Column(String, nullable=True)  # URL to profile picture
+
+    # Add to the existing relationships in the User class
+    reservations = relationship("Reservation", back_populates="user")
