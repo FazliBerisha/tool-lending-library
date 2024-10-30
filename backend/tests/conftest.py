@@ -1,85 +1,50 @@
-import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from app.main import app
-from app.database import Base, get_db
-from app.config import settings
-from app.models import user, tool  # Import all your models
+"""
+Configuration settings for the application.
 
-# Use an in-memory SQLite database for testing
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
+This module defines various configuration settings needed for the application. It includes settings 
+for the database connection, JWT authentication, and other application-wide parameters. The settings 
+are loaded from environment variables using the Pydantic `BaseSettings` class, allowing for a flexible 
+and secure configuration management approach.
 
-# Create an SQLAlchemy engine for the testing database
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+Settings include:
+- `DATABASE_URL`: The URL for the database connection.
+- `SECRET_KEY`: The secret key used for JWT encoding and decoding.
+- `ALGORITHM`: The algorithm used for JWT encoding.
+- `ACCESS_TOKEN_EXPIRE_MINUTES`: The expiration time for access tokens, in minutes.
+- `VALID_ROLES`: The list of valid user roles in the application.
+- `PROJECT_NAME`: The name of the project.
 
-# Create a configured session factory for the testing database
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+The `Config` class within `Settings` specifies the location of the environment file.
+"""
 
-def override_get_db():
+from pydantic import BaseSettings
+from typing import List
+
+class Settings(BaseSettings):
     """
-    Override the `get_db` dependency to use the testing database session.
+    Application settings loaded from environment variables.
     
-    This function provides a database session that uses the in-memory SQLite database 
-    configured for testing. It ensures that the session is closed after use.
+    The `Settings` class inherits from `BaseSettings` and uses Pydantic to parse and validate settings 
+    from environment variables. Default values are provided where appropriate.
     """
-    try:
-        db = TestingSessionLocal()
-        yield db
-    finally:
-        db.close()
+    DATABASE_URL: str = "sqlite:///./sql_app.db"  # Database connection URL
+    SECRET_KEY: str = "your-secret-key-here"  # Secret key for JWT encoding/decoding (replace with a secure key)
+    ALGORITHM: str = "HS256"  # Algorithm used for JWT encoding
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30  # Token expiration time in minutes
+    VALID_ROLES: List[str] = ["user", "admin"]  # List of valid user roles
+    PROJECT_NAME: str = "Tool Lending Library"  # Name of the project
 
-@pytest.fixture(scope="function")
-def db():
-    """
-    Fixture for providing a new database session for each test function.
-    
-    This fixture sets up the database schema before each test function and tears it down 
-    after the test function completes. It ensures a clean state for each test function.
-    """
-    Base.metadata.create_all(bind=engine)
-    yield TestingSessionLocal()
-    Base.metadata.drop_all(bind=engine)
+    class Config:
+        """
+        Configuration for loading environment variables.
+        
+        The `Config` class specifies the path to the environment file. This allows Pydantic to load
+        environment variables from a `.env` file.
+        """
+        env_file = ".env"
 
-@pytest.fixture(scope="module")
-def client():
-    """
-    Fixture for providing a FastAPI test client.
-    
-    This fixture sets up the FastAPI application with the overridden database dependency for
-    testing. It provides a test client that can be used to make requests to the application.
-    It creates the database schema before the tests and drops it after the tests are complete.
-    """
-    Base.metadata.create_all(bind=engine)
-    app.dependency_overrides[get_db] = override_get_db
-    with TestClient(app) as c:
-        yield c
-    Base.metadata.drop_all(bind=engine)
-    app.dependency_overrides.clear()
+# Create an instance of the Settings class to access the settings
+settings = Settings()
 
-# Override settings for testing
-settings.DATABASE_URL = SQLALCHEMY_DATABASE_URL
-
-@pytest.fixture(scope="function")
-def user_token(client, db):
-    register_response = client.post("/api/v1/auth/register", json={
-        "username": "user",
-        "email": "user@example.com",
-        "password": "userpassword",
-        "role": "user",
-        "full_name": "Test User",
-        "bio": "Test bio",
-        "location": "Test City"
-    })
-
-@pytest.fixture(scope="function")
-def admin_token(client, db):
-    register_response = client.post("/api/v1/auth/register", json={
-        "username": "admin",
-        "email": "admin@example.com",
-        "password": "adminpassword",
-        "role": "admin",
-        "full_name": "Admin User",
-        "bio": "Admin bio",
-        "location": "Admin City"
-    })
+# Export VALID_ROLES for use in other parts of the application
+VALID_ROLES = settings.VALID_ROLES

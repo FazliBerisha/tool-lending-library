@@ -14,9 +14,10 @@ Relationships:
 - `owner`: Establishes a many-to-one relationship with the User model, linking tools to their respective owners.
 """
 
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from app.database import Base
+
 
 class Tool(Base):
     """
@@ -42,3 +43,11 @@ class Tool(Base):
 
     # Many-to-one relationship with the User model, indicating that each tool is owned by a single user
     owner = relationship("User", back_populates="tools")
+
+    is_available = Column(Boolean, default=True)
+
+    reservations = relationship("Reservation", back_populates="tool")
+
+   
+    
+ 

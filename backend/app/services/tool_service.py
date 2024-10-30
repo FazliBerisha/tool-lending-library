@@ -37,7 +37,7 @@ class ToolService:
         Returns:
         - List of tools within the specified range.
         """
-        return db.query(Tool).offset(skip).limit(limit).all()
+        return db.query(Tool).filter(Tool.is_available).offset(skip).limit(limit).all()
 
     @staticmethod
     def create_tool(db: Session, tool: ToolCreate, owner_id: int):
@@ -158,3 +158,62 @@ class ToolService:
         db.delete(db_tool)  # Delete tool
         db.commit()  # Commit transaction
         return True
+    
+    @staticmethod
+    def check_out_tool(db: Session, tool_id: int, user_id: int):
+        """
+        Processes tool check-out by setting its availability to False.
+        """
+        db_tool = db.query(Tool).filter(Tool.id == tool_id, Tool.is_available == True).first()
+        if not db_tool:
+            return None  # Tool not available or not found
+
+        db_tool.is_available = False
+        db.commit()
+        db.refresh(db_tool)
+        return db_tool
+
+    @staticmethod
+    def return_tool(db: Session, tool_id: int, user_id: int):
+        """
+        Processes tool return by setting its availability to True.
+        """
+        db_tool = db.query(Tool).filter(Tool.id == tool_id, Tool.is_available == False).first()
+        if not db_tool:
+            return None  # Tool not checked out or not found
+
+        db_tool.is_available = True
+        db.commit()
+        db.refresh(db_tool)
+        return db_tool
+    
+    @staticmethod
+    def update_tool_availability(db: Session, tool_id: int, is_available: bool):
+        tool = db.query(Tool).filter(Tool.id == tool_id).first()
+        if tool:
+            tool.is_available = is_available
+            db.commit()
+            db.refresh(tool)
+        return tool
+    
+    @staticmethod
+    def get_one_tool(db: Session, tool_id: int):
+        """
+        Retrieves a single tool by its ID.
+
+        Parameters:
+        - `db` (Session): The database session.
+        - `tool_id` (int): The ID of the tool to retrieve.
+
+        Returns:
+        - Tool: The tool object if found, otherwise None.
+        """
+        return db.query(Tool).filter(Tool.id == tool_id).first()
+    
+    
+    
+    
+
+    
+
+    
