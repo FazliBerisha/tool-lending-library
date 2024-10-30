@@ -11,6 +11,7 @@ class Reservation(Base):
     reservation_date = Column(Date, nullable=False)
     return_date = Column(Date, nullable=True)
     is_active = Column(Boolean, default=True)
+    is_checked_out = Column(Boolean, default=False)
 
     tool = relationship("Tool", back_populates="reservations")
     user = relationship("User", back_populates="reservations")

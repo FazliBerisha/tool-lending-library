@@ -6,6 +6,7 @@ from app.services.reservation_service import ReservationService
 from app.schemas.reservation import Reservation, ReservationCreate
 from app.core.deps import get_current_user
 from app.models.user import User
+from typing import List
 
 router = APIRouter()
 
@@ -29,20 +30,25 @@ def reserve_tool(
 
 @router.post("/checkout/{tool_id}", status_code=status.HTTP_200_OK)
 def check_out_tool(tool_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    reservation = ReservationService.get_active_reservation(db, tool_id, current_user.id)
+    reservation = ReservationService.checkout_tool(db, tool_id, current_user.id)
     if not reservation:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No active reservation found")
-
+    
     ToolService.update_tool_availability(db, tool_id, False)
     return {"msg": f"Tool '{tool_id}' checked out successfully"}
 
 @router.post("/return/{tool_id}", status_code=status.HTTP_200_OK)
 def return_tool(tool_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    reservation = ReservationService.get_active_reservation(db, tool_id, current_user.id)
+    reservation = ReservationService.return_tool(db, tool_id, current_user.id)
     if not reservation:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No active reservation found")
 
     ToolService.update_tool_availability(db, tool_id, True)
-    reservation.is_active = False
-    db.commit()
     return {"msg": f"Tool '{tool_id}' returned successfully"}
+
+@router.get("/", response_model=List[Reservation])
+def get_user_reservations(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    return ReservationService.get_user_reservations(db, current_user.id)

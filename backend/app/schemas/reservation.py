@@ -1,6 +1,7 @@
 from typing import Optional
 from pydantic import BaseModel
 from datetime import date
+from app.schemas.tool import Tool
 
 class ReservationBase(BaseModel):
     tool_id: int
@@ -14,6 +15,8 @@ class Reservation(ReservationBase):
     user_id: int
     return_date: Optional[date]
     is_active: bool
+    is_checked_out: bool
+    tool: Tool
 
     class Config:
         orm_mode = True
