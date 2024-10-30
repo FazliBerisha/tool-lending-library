@@ -1,6 +1,5 @@
 # Comprehensive .gitignore for Tool Lending Library Project
 
-```
 # Python
 __pycache__/
 *.py[cod]
@@ -180,4 +179,9 @@ cypress/screenshots
 
 # Local Netlify folder
 .netlify
-```
+
+# SQLite database files
+*.db
+sql_app.db
+*.sqlite
+*.sqlite3
