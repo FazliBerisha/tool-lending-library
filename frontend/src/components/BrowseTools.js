@@ -81,10 +81,10 @@ const BrowseTools = () => {
 
   // Create a debounced search function
   const debouncedSearch = useCallback(
-    debounce((term) => {
+    (term) => {
       setSearchTerm(term);
-    }, 300),
-    []
+    },
+    [] // Empty dependency array since we only want to create this function once
   );
 
   if (loading) {
