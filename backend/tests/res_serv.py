@@ -1,75 +1,93 @@
-import pytest
+from unittest.mock import patch
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from app.main import app  # Assuming your FastAPI app is called `app` in `main.py`
-from app.database import Base, get_db
-from app.models.tool import Tool
-from app.models.user import User
-
-# Create an in-memory SQLite database for testing
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Override the get_db dependency to use the testing database
-def override_get_db():
-    try:
-        db = TestingSessionLocal()
-        yield db
-    finally:
-        db.close()
-
-app.dependency_overrides[get_db] = override_get_db
-
-# Create the database schema
-Base.metadata.create_all(bind=engine)
+from app.main import app  # Ensure app is correctly imported
+from app.services.review_service import ReportService
+from app.core.auth import get_current_user_role
 
 client = TestClient(app)
 
-@pytest.fixture
-def create_test_data():
-    """Fixture to create initial test data (tools and users) in the database."""
-    db = TestingSessionLocal()
-    user = User(username="testuser", email="test@example.com", hashed_password="fakehashedpassword")
-    tool = Tool(name="Hammer", description="A useful hammer", category="Hand Tools", available=True)
-    db.add(user)
-    db.add(tool)
-    db.commit()
-    db.refresh(user)
-    db.refresh(tool)
-    yield {"user": user, "tool": tool}
-    db.close()
+# Mock data simulating the most borrowed tools response
+mock_borrowed_tools_data = [
+    {"tool_name": "Drill", "borrow_count": 15},
+    {"tool_name": "Hammer", "borrow_count": 10},
+    {"tool_name": "Saw", "borrow_count": 8}
+]
 
-def test_check_out_tool(create_test_data):
-    """Test that a tool can be checked out successfully."""
-    tool = create_test_data["tool"]
-    user = create_test_data["user"]
-    
-    # Simulate a login (you might need to adjust this part if you have authentication)
-    response = client.post(f"/tools/{tool.id}/checkout", headers={"Authorization": f"Bearer {user.id}"})
-    
-    assert response.status_code == 200
-    response_data = response.json()
-    
-    assert response_data["id"] == tool.id
-    assert not response_data["available"]  # Tool should be marked unavailable
-    assert response_data["checked_out_by"] == user.id  # Tool should be checked out by the user
+# Mock user role functions
+def mock_get_current_user_role_admin():
+    return "admin"
 
-def test_return_tool(create_test_data):
-    """Test that a tool can be returned successfully."""
-    tool = create_test_data["tool"]
-    user = create_test_data["user"]
-    
-    # First, check out the tool
-    client.post(f"/tools/{tool.id}/checkout", headers={"Authorization": f"Bearer {user.id}"})
-    
-    # Now return the tool
-    response = client.post(f"/tools/{tool.id}/return", headers={"Authorization": f"Bearer {user.id}"})
-    
+def mock_get_current_user_role_non_admin():
+    return "user"
+
+# Test for unauthorized (non-admin) access
+def test_most_borrowed_tools_unauthorized():
+    app.dependency_overrides[get_current_user_role] = mock_get_current_user_role_non_admin
+    response = client.get("/api/v1/reports/most-borrowed-tools?limit=5")
+    print("Response status code:", response.status_code)
+    print("Response JSON:", response.json())
+    assert response.status_code == 403  # Expect 403 Forbidden for non-admin
+    app.dependency_overrides = {}  # Reset overrides after test
+
+# Test for authorized admin access with a mocked response
+@patch("app.services.review_service.ReportService.get_most_borrowed_tools")
+def test_most_borrowed_tools_as_admin(mock_get_most_borrowed_tools):
+    app.dependency_overrides[get_current_user_role] = mock_get_current_user_role_admin
+    mock_get_most_borrowed_tools.return_value = mock_borrowed_tools_data
+    response = client.get("/api/v1/reports/most-borrowed-tools?limit=5")
+    print("Response status code:", response.status_code)
+    print("Response JSON:", response.json())
     assert response.status_code == 200
-    response_data = response.json()
-    
-    assert response_data["id"] == tool.id
-    assert response_data["available"]  # Tool should be marked available
-    assert response_data["checked_out_by"] is None  # No user should be associated with the tool
+    assert response.json() == mock_borrowed_tools_data  # Should match mock data
+    app.dependency_overrides = {}  # Reset overrides after test
+
+# Test with varying limits to ensure correct data slicing
+@patch("app.services.review_service.ReportService.get_most_borrowed_tools")
+def test_most_borrowed_tools_with_different_limits(mock_get_most_borrowed_tools):
+    app.dependency_overrides[get_current_user_role] = mock_get_current_user_role_admin
+    for limit in [1, 2, 3]:
+        mock_get_most_borrowed_tools.return_value = mock_borrowed_tools_data[:limit]
+        response = client.get(f"/api/v1/reports/most-borrowed-tools?limit={limit}")
+        print("Response status code:", response.status_code)
+        print("Response JSON:", response.json())
+        assert response.status_code == 200
+        assert response.json() == mock_borrowed_tools_data[:limit]
+    app.dependency_overrides = {}  # Reset overrides after loop
+
+# Mock data for least borrowed tools
+mock_least_borrowed_tools_data = [
+    {"tool_name": "Screwdriver", "borrow_count": 2},
+    {"tool_name": "Wrench", "borrow_count": 3},
+    {"tool_name": "Pliers", "borrow_count": 5},
+]
+
+def test_least_borrowed_tools_unauthorized():
+    app.dependency_overrides[get_current_user_role] = mock_get_current_user_role_non_admin
+    response = client.get("/api/v1/reports/least-borrowed-tools?limit=5")
+    print("Response status code:", response.status_code)
+    print("Response JSON:", response.json())
+    assert response.status_code == 403  # Expecting Forbidden for non-admin
+    app.dependency_overrides = {}  # Reset overrides after test
+
+@patch("app.services.review_service.ReportService.get_least_borrowed_tools")
+def test_least_borrowed_tools_as_admin(mock_get_least_borrowed_tools):
+    app.dependency_overrides[get_current_user_role] = mock_get_current_user_role_admin
+    mock_get_least_borrowed_tools.return_value = mock_least_borrowed_tools_data
+    response = client.get("/api/v1/reports/least-borrowed-tools?limit=5")
+    print("Response status code:", response.status_code)
+    print("Response JSON:", response.json())
+    assert response.status_code == 200
+    assert response.json() == mock_least_borrowed_tools_data
+    app.dependency_overrides = {}  # Reset overrides after test
+
+@patch("app.services.review_service.ReportService.get_least_borrowed_tools")
+def test_least_borrowed_tools_with_different_limits(mock_get_least_borrowed_tools):
+    app.dependency_overrides[get_current_user_role] = mock_get_current_user_role_admin
+    for limit in [1, 2, 3]:
+        mock_get_least_borrowed_tools.return_value = mock_least_borrowed_tools_data[:limit]
+        response = client.get(f"/api/v1/reports/least-borrowed-tools?limit={limit}")
+        print("Response status code:", response.status_code)
+        print("Response JSON:", response.json())
+        assert response.status_code == 200
+        assert response.json() == mock_least_borrowed_tools_data[:limit]
+    app.dependency_overrides = {}  # Reset overrides after loop

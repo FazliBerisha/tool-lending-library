@@ -18,6 +18,8 @@ Functions:
 from sqlalchemy.orm import Session
 from app.models.tool import Tool  # Tool database model
 from app.schemas.tool import ToolCreate, ToolUpdate  # Pydantic models for input validation
+from app.models.reservation import Reservation
+from sqlalchemy import func
 
 class ToolService:
     """
@@ -209,6 +211,44 @@ class ToolService:
         - Tool: The tool object if found, otherwise None.
         """
         return db.query(Tool).filter(Tool.id == tool_id).first()
+    
+    @staticmethod
+    def get_most_borrowed_tools(db: Session, limit: int = 5):
+        """
+        Retrieves the most borrowed tools based on reservation count.
+
+        Args:
+            db (Session): The database session.
+            limit (int): The maximum number of tools to return.
+
+        Returns:
+            List[dict]: List of the most borrowed tools with count.
+        """
+        return db.query(Tool.name, func.count(Reservation.id).label("borrow_count"))\
+                 .join(Reservation, Reservation.tool_id == Tool.id)\
+                 .group_by(Tool.id)\
+                 .order_by(func.count(Reservation.id).desc())\
+                 .limit(limit)\
+                 .all()
+
+    @staticmethod
+    def get_least_borrowed_tools(db: Session, limit: int = 5):
+        """
+        Retrieves the least borrowed tools based on reservation count.
+
+        Args:
+            db (Session): The database session.
+            limit (int): The maximum number of tools to return.
+
+        Returns:
+            List[dict]: List of the least borrowed tools with count.
+        """
+        return db.query(Tool.name, func.count(Reservation.id).label("borrow_count"))\
+                 .join(Reservation, Reservation.tool_id == Tool.id)\
+                 .group_by(Tool.id)\
+                 .order_by(func.count(Reservation.id).asc())\
+                 .limit(limit)\
+                 .all()
     
     
     

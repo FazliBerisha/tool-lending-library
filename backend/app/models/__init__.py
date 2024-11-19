@@ -5,5 +5,7 @@ Imports and exposes models for easy access throughout the application.
 
 from sqlalchemy.ext.declarative import declarative_base
 
+
 # Define the Base class for models
 Base = declarative_base()
+
