@@ -72,4 +72,3 @@ def delete_tool(
         raise HTTPException(status_code=404, detail="Tool not found")
     return Response(status_code=204)
 
-
