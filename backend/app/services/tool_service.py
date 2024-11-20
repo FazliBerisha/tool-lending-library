@@ -212,48 +212,4 @@ class ToolService:
         """
         return db.query(Tool).filter(Tool.id == tool_id).first()
     
-    @staticmethod
-    def get_most_borrowed_tools(db: Session, limit: int = 5):
-        """
-        Retrieves the most borrowed tools based on reservation count.
-
-        Args:
-            db (Session): The database session.
-            limit (int): The maximum number of tools to return.
-
-        Returns:
-            List[dict]: List of the most borrowed tools with count.
-        """
-        return db.query(Tool.name, func.count(Reservation.id).label("borrow_count"))\
-                 .join(Reservation, Reservation.tool_id == Tool.id)\
-                 .group_by(Tool.id)\
-                 .order_by(func.count(Reservation.id).desc())\
-                 .limit(limit)\
-                 .all()
-
-    @staticmethod
-    def get_least_borrowed_tools(db: Session, limit: int = 5):
-        """
-        Retrieves the least borrowed tools based on reservation count.
-
-        Args:
-            db (Session): The database session.
-            limit (int): The maximum number of tools to return.
-
-        Returns:
-            List[dict]: List of the least borrowed tools with count.
-        """
-        return db.query(Tool.name, func.count(Reservation.id).label("borrow_count"))\
-                 .join(Reservation, Reservation.tool_id == Tool.id)\
-                 .group_by(Tool.id)\
-                 .order_by(func.count(Reservation.id).asc())\
-                 .limit(limit)\
-                 .all()
-    
-    
-    
-    
-
-    
-
     

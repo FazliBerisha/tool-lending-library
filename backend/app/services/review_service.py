@@ -5,7 +5,7 @@ from app.models.tool import Tool
 
 class ReportService:
     @staticmethod
-    def get_most_borrowed_tools(db: Session, limit: int = 5):
+    def most_borrowed_tools(db: Session, limit: int = 5):
         """
         Retrieves the most borrowed tools.
 
@@ -28,7 +28,7 @@ class ReportService:
         return [{"tool_name": result[0], "borrow_count": result[1]} for result in results]
     
     @staticmethod
-    def get_least_borrowed_tools(db: Session, limit: int = 5):
+    def least_borrowed_tools(db: Session, limit: int = 5):
         """
         Retrieves the least borrowed tools.
 
