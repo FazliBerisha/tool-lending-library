@@ -14,6 +14,7 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Check login status
     const checkLoginStatus = () => {
       const token = localStorage.getItem('token');
       setIsLoggedIn(!!token);
@@ -22,8 +23,10 @@ const Navbar = () => {
     // Initial check
     checkLoginStatus();
 
-    // Listen for changes in localStorage and custom event
+    // Listen for changes in localStorage
     window.addEventListener('storage', checkLoginStatus);
+    
+    // Add a custom event listener for login status changes
     window.addEventListener('loginStateChange', checkLoginStatus);
 
     return () => {
@@ -52,9 +55,10 @@ const Navbar = () => {
     localStorage.removeItem('username');
     localStorage.removeItem('userId');
     localStorage.removeItem('role');
-
+    
+    // Dispatch custom event for navbar update
     window.dispatchEvent(new Event('loginStateChange'));
-
+    
     setIsLoggedIn(false);
     navigate('/login');
   };
@@ -247,27 +251,24 @@ const Navbar = () => {
                 >
                   Manage Tools
                 </Button>
-                {localStorage.getItem('role') === 'admin' && (
-                  <>
-                    <Button
-                      component={RouterLink}
-                      to="/admin/reports"
-                      sx={{
-                        color: '#4caf50',
-                        border: '2px solid #4caf50',
-                        borderRadius: '8px',
-                        marginRight: 2,
-                        padding: '6px 16px',
-                        '&:hover': {
-                          backgroundColor: 'rgba(76, 175, 80, 0.08)',
-                          borderColor: '#45a049',
-                        },
-                      }}
-                    >
-                      Reports
-                    </Button>
-                  </>
-                )}
+                <Button 
+                  component={RouterLink} 
+                  to="/admin/report" 
+                  startIcon={<ArticleIcon />}
+                  sx={{ 
+                    color: '#4caf50',
+                    border: '2px solid #4caf50',
+                    borderRadius: '8px',
+                    padding: '6px 16px',
+                    marginRight: 2,
+                    '&:hover': {
+                      backgroundColor: 'rgba(76, 175, 80, 0.08)',
+                      borderColor: '#45a049'
+                    }
+                  }}
+                >
+                  Reports
+                </Button>
               </>
             )}
             <IconButton 
@@ -345,7 +346,6 @@ const Navbar = () => {
           >
             Login
           </Button>
-          
         )}
       </Toolbar>
     </AppBar>

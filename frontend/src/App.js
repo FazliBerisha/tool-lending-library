@@ -11,7 +11,7 @@ import BrowseTools from './components/BrowseTools';
 import AdminToolsPanel from './components/AdminToolsPanel';
 import ProtectedRoute from './components/ProtectedRoute';
 import ReservationPanel from './components/ReservationPanel';
-import ToolStats from './components/ToolStats';  // Import ToolStats component
+import AdminReport from './components/AdminReport'; 
 
 const theme = createTheme({
   palette: {
@@ -55,13 +55,13 @@ function App() {
               </ProtectedRoute>
             } 
           />
-          <Route
-            path="/admin/reports"
+          <Route 
+            path="/admin/report" 
             element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <AdminReports />
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminReport />
               </ProtectedRoute>
-            }
+            } 
           />
         </Routes>
       </Router>
