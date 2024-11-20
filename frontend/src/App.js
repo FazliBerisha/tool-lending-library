@@ -11,6 +11,7 @@ import BrowseTools from './components/BrowseTools';
 import AdminToolsPanel from './components/AdminToolsPanel';
 import ProtectedRoute from './components/ProtectedRoute';
 import ReservationPanel from './components/ReservationPanel';
+import AdminReport from './components/AdminReport'; 
 
 const theme = createTheme({
   palette: {
@@ -51,6 +52,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ReservationPanel />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/report" 
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminReport />
               </ProtectedRoute>
             } 
           />

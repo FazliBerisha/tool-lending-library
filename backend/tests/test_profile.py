@@ -8,7 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 
-client = TestClient(app)
+client = TestClient(app)                   
 
 @pytest.fixture(scope="function")
 def user_token(client, db):

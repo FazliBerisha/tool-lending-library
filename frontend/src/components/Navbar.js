@@ -232,24 +232,44 @@ const Navbar = () => {
         {isLoggedIn ? (
           <>
             {localStorage.getItem('role') === 'admin' && (
-              <Button 
-                component={RouterLink} 
-                to="/admin/tools" 
-                startIcon={<BuildIcon />}
-                sx={{
-                  color: '#4caf50',
-                  border: '2px solid #4caf50',
-                  borderRadius: '8px',
-                  marginRight: 2,
-                  padding: '6px 16px',
-                  '&:hover': {
-                    backgroundColor: 'rgba(76, 175, 80, 0.08)',
-                    borderColor: '#45a049'
-                  }
-                }}
-              >
-                Manage Tools
-              </Button>
+              <>
+                <Button 
+                  component={RouterLink} 
+                  to="/admin/tools" 
+                  startIcon={<BuildIcon />}
+                  sx={{
+                    color: '#4caf50',
+                    border: '2px solid #4caf50',
+                    borderRadius: '8px',
+                    marginRight: 2,
+                    padding: '6px 16px',
+                    '&:hover': {
+                      backgroundColor: 'rgba(76, 175, 80, 0.08)',
+                      borderColor: '#45a049'
+                    }
+                  }}
+                >
+                  Manage Tools
+                </Button>
+                <Button 
+                  component={RouterLink} 
+                  to="/admin/report" 
+                  startIcon={<ArticleIcon />}
+                  sx={{ 
+                    color: '#4caf50',
+                    border: '2px solid #4caf50',
+                    borderRadius: '8px',
+                    padding: '6px 16px',
+                    marginRight: 2,
+                    '&:hover': {
+                      backgroundColor: 'rgba(76, 175, 80, 0.08)',
+                      borderColor: '#45a049'
+                    }
+                  }}
+                >
+                  Reports
+                </Button>
+              </>
             )}
             <IconButton 
               onClick={handleMenu} 

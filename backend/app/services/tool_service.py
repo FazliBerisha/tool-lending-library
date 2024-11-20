@@ -18,6 +18,8 @@ Functions:
 from sqlalchemy.orm import Session
 from app.models.tool import Tool  # Tool database model
 from app.schemas.tool import ToolCreate, ToolUpdate  # Pydantic models for input validation
+from app.models.reservation import Reservation
+from sqlalchemy import func
 
 class ToolService:
     """
@@ -210,10 +212,4 @@ class ToolService:
         """
         return db.query(Tool).filter(Tool.id == tool_id).first()
     
-    
-    
-    
-
-    
-
     
