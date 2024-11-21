@@ -12,6 +12,7 @@ import AdminToolsPanel from './components/AdminToolsPanel';
 import ProtectedRoute from './components/ProtectedRoute';
 import ReservationPanel from './components/ReservationPanel';
 import AdminReport from './components/AdminReport'; 
+import Blog from './components/Blog';
 
 const theme = createTheme({
   palette: {
@@ -63,6 +64,7 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          <Route path="/blog" element={<Blog />} />
         </Routes>
       </Router>
     </ThemeProvider>

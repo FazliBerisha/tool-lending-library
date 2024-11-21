@@ -20,6 +20,7 @@ import BuildIcon from '@mui/icons-material/Build';
 import { styled } from '@mui/material/styles';
 import { debounce } from 'lodash'; // You might need to install lodash: npm install lodash
 import { useNavigate } from 'react-router-dom';
+import ToolDetailsModal from './ToolDetailsModal';
 
 const StyledCard = styled(Card)(({ theme }) => ({
   height: '100%',
@@ -50,6 +51,8 @@ const BrowseTools = () => {
   const [page, setPage] = useState(1);
   const itemsPerPage = 12;
   const navigate = useNavigate();
+  const [selectedTool, setSelectedTool] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchTools = React.useCallback(async () => {
     try {
@@ -139,7 +142,13 @@ const BrowseTools = () => {
       <Grid container spacing={3}>
         {tools.map((tool) => (
           <Grid item key={tool.id} xs={12} sm={6} md={4} lg={3}>
-            <StyledCard>
+            <StyledCard 
+              onClick={() => {
+                setSelectedTool(tool);
+                setIsModalOpen(true);
+              }}
+              sx={{ cursor: 'pointer' }}
+            >
               <CardMedia
                 component="div"
                 sx={{
@@ -186,6 +195,12 @@ const BrowseTools = () => {
           color="primary"
         />
       </Box>
+
+      <ToolDetailsModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        tool={selectedTool}
+      />
     </Container>
   );
 };
