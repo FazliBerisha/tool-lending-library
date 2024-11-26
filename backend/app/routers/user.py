@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.services.user_service import UserService
 from app.schemas.user import UserCreate, User, UserProfileUpdate
 from app.core.auth import get_current_user_role, get_current_user
+from app.services.file_service import FileService
 
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/token")
@@ -129,3 +130,20 @@ def update_user_profile(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to update this profile")
     updated_profile = UserService.update_user_profile(db, user_id, profile_data)
     return updated_profile
+
+@router.put("/profile-image")
+async def update_profile_image(
+    image: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    try:
+        # Save the uploaded image
+        image_url = await FileService.save_upload(image, "profile-images")
+        
+        # Update user's profile image
+        updated_user = UserService.update_profile_image(db, current_user.id, image_url)
+        
+        return {"message": "Profile image updated successfully", "image_url": image_url}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))

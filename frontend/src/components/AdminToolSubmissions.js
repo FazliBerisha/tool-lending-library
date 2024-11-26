@@ -143,9 +143,24 @@ const AdminToolSubmissions = () => {
                 <CardContent>
                   {/* Tool Name and Category */}
                   <Box display="flex" alignItems="center" mb={2}>
-                    <Avatar sx={{ bgcolor: 'primary.main', mr: 2 }}>
-                      <BuildIcon />
-                    </Avatar>
+                    {submission.image_url ? (
+                      <Box sx={{ width: '100%', mb: 2 }}>
+                        <img 
+                          src={submission.image_url}
+                          alt={submission.name}
+                          style={{
+                            width: '100%',
+                            height: '200px',
+                            objectFit: 'cover',
+                            borderRadius: '8px'
+                          }}
+                        />
+                      </Box>
+                    ) : (
+                      <Avatar sx={{ bgcolor: 'primary.main', mr: 2 }}>
+                        <BuildIcon />
+                      </Avatar>
+                    )}
                     <Box>
                       <Typography variant="h6" sx={{ mb: 0.5 }}>
                         {submission.name}

@@ -11,9 +11,9 @@ class ToolSubmission(Base):
     description = Column(String)
     category = Column(String)
     condition = Column(String)
+    image_url = Column(String, nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    status = Column(String, default="pending")  # pending, approved, rejected
+    status = Column(String, default="pending")
     submitted_at = Column(DateTime, default=datetime.utcnow)
     
-    # Relationship to user who submitted
     user = relationship("User", back_populates="tool_submissions")

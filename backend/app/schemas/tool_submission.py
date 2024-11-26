@@ -17,6 +17,7 @@ class ToolSubmission(ToolSubmissionBase):
     status: str
     submitted_at: datetime
     user_name: Optional[str] = None
+    image_url: Optional[str] = None
 
     class Config:
         orm_mode = True

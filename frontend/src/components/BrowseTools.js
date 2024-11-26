@@ -68,6 +68,7 @@ const BrowseTools = () => {
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch tools');
       const data = await response.json();
+      console.log('Fetched tools:', data);
       setTools(data);
       setError(null);
     } catch (err) {
@@ -153,13 +154,43 @@ const BrowseTools = () => {
                 component="div"
                 sx={{
                   pt: '56.25%',
+                  position: 'relative',
                   bgcolor: 'primary.light',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
                 }}
               >
-                <BuildIcon sx={{ fontSize: 40, color: 'white' }} />
+                {tool.image_url ? (
+                  <img
+                    src={tool.image_url}
+                    alt={tool.name}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                    }}
+                    onError={(e) => {
+                      console.error('Image failed to load:', tool.image_url);
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <BuildIcon sx={{ fontSize: 40, color: 'white' }} />
+                  </Box>
+                )}
               </CardMedia>
               <CardContent>
                 <Typography gutterBottom variant="h6" component="h2">

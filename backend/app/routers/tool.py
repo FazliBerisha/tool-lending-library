@@ -17,6 +17,7 @@ def get_current_user_id(current_user: User = Depends(get_current_user)) -> int:
 @router.get("/", response_model=List[Tool])
 def read_tools(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     tools = ToolService.get_tools(db, skip=skip, limit=limit)
+    print("Tools with images:", [(t.id, t.image_url) for t in tools])  # Debug log
     return tools
 
 @router.get("/search/", response_model=List[Tool])

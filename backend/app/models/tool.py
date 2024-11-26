@@ -14,9 +14,10 @@ Relationships:
 - `owner`: Establishes a many-to-one relationship with the User model, linking tools to their respective owners.
 """
 
-from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, DateTime
 from sqlalchemy.orm import relationship
 from app.database import Base
+from datetime import datetime
 
 
 class Tool(Base):
@@ -33,10 +34,10 @@ class Tool(Base):
     name = Column(String, nullable=False)
     
     # Brief description of the tool, explaining its purpose or features
-    description = Column(String)
+    description = Column(String, nullable=True)
     
     # Category to which the tool belongs (e.g., "Software", "Hardware"), also indexed
-    category = Column(String)
+    category = Column(String, nullable=True)
     
     # Foreign key connecting each tool to its owner's user ID
     owner_id = Column(Integer, ForeignKey("users.id"))
@@ -48,7 +49,11 @@ class Tool(Base):
 
     reservations = relationship("Reservation", back_populates="tool")
 
-    condition = Column(String)
+    condition = Column(String, nullable=True)
+
+    image_url = Column(String, nullable=True)
+
+    created_at = Column(DateTime, default=datetime.utcnow)
 
 
    

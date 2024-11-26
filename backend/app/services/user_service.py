@@ -184,3 +184,12 @@ class UserService:
         db.commit()
         db.refresh(user)
         return user
+
+    @staticmethod
+    def update_profile_image(db: Session, user_id: int, image_url: str):
+        user = db.query(User).filter(User.id == user_id).first()
+        if user:
+            user.profile_image_url = image_url
+            db.commit()
+            db.refresh(user)
+        return user

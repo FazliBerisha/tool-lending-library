@@ -20,6 +20,11 @@ import PersonIcon from '@mui/icons-material/Person';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import InfoIcon from '@mui/icons-material/Info';
+import { styled } from '@mui/material';
+
+const Input = styled('input')({
+  display: 'none',
+});
 
 const UserProfile = () => {
   const [profile, setProfile] = useState(null);
@@ -105,6 +110,53 @@ const UserProfile = () => {
     }
   };
 
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append('image', file);
+
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:8000/api/v1/users/profile-image', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formDataToSend
+      });
+
+      if (!response.ok) throw new Error('Failed to update profile image');
+
+      const data = await response.json();
+      console.log('Image upload response:', data);
+
+      setFormData(prevData => {
+        console.log('Setting form data with new image:', data.image_url);
+        return {
+          ...prevData,
+          profile_picture: data.image_url
+        };
+      });
+
+      setProfile(prevProfile => ({
+        ...prevProfile,
+        profile_picture: data.image_url
+      }));
+
+      const avatarImg = document.querySelector('Avatar');
+      if (avatarImg) {
+        avatarImg.src = data.image_url + '?' + new Date().getTime();
+      }
+
+      setSuccessMessage('Profile picture updated successfully!');
+    } catch (err) {
+      console.error('Image upload error:', err);
+      setError('Failed to update profile picture');
+    }
+  };
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
@@ -131,24 +183,37 @@ const UserProfile = () => {
                 width: 120, 
                 height: 120, 
                 mr: 3,
-                bgcolor: 'primary.main'
+                bgcolor: 'primary.main',
+                cursor: isEditing ? 'pointer' : 'default'
               }}
-              src={formData.profile_picture}
+              src={formData.profile_picture ? `${formData.profile_picture}?${new Date().getTime()}` : undefined}
             >
               {!formData.profile_picture && <PersonIcon sx={{ fontSize: 60 }} />}
             </Avatar>
             {isEditing && (
-              <IconButton
-                sx={{
-                  position: 'absolute',
-                  bottom: 0,
-                  right: 24,
-                  bgcolor: 'background.paper'
-                }}
-                size="small"
-              >
-                <PhotoCameraIcon />
-              </IconButton>
+              <label htmlFor="profile-image-upload">
+                <Input
+                  accept="image/*"
+                  id="profile-image-upload"
+                  type="file"
+                  onChange={handleImageUpload}
+                />
+                <IconButton
+                  component="span"
+                  sx={{
+                    position: 'absolute',
+                    bottom: 0,
+                    right: 24,
+                    bgcolor: 'background.paper',
+                    '&:hover': {
+                      bgcolor: 'primary.light',
+                    },
+                  }}
+                  size="small"
+                >
+                  <PhotoCameraIcon />
+                </IconButton>
+              </label>
             )}
           </Box>
           <Box>
@@ -217,15 +282,6 @@ const UserProfile = () => {
               InputProps={{
                 startAdornment: <LocationOnIcon color="action" sx={{ mr: 1 }} />
               }}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Profile Picture URL"
-              value={formData.profile_picture || ''}
-              onChange={(e) => setFormData({ ...formData, profile_picture: e.target.value })}
-              disabled={!isEditing}
             />
           </Grid>
         </Grid>

@@ -62,3 +62,5 @@ class User(Base):
 
     # Add this to your existing User class
     tool_submissions = relationship("ToolSubmission", back_populates="user")
+
+    profile_image_url = Column(String)

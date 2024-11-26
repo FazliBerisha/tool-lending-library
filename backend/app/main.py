@@ -20,6 +20,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routers import user, tool, auth, reservation, review, admin, tool_submission
 from app.config import settings
 from app.database import create_tables
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 
 
 # Create tables for all models
@@ -49,6 +51,9 @@ app.include_router(
     prefix="/api/v1/tool-submissions",
     tags=["tool-submissions"]
 )
+
+# Mount static file directory
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 
 
