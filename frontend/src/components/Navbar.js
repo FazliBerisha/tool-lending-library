@@ -73,6 +73,84 @@ const Navbar = () => {
     setSettingsAnchorEl(null);
   };
 
+  // Update the Settings menu to include different options based on user role
+  const renderSettingsMenu = () => {
+    const userRole = localStorage.getItem('role');
+    
+    return (
+      <Menu
+        id="settings-menu"
+        anchorEl={settingsAnchorEl}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        keepMounted
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        open={Boolean(settingsAnchorEl)}
+        onClose={handleSettingsClose}
+      >
+        {userRole === 'admin' ? (
+          // Admin settings menu
+          <>
+            <MenuItem 
+              component={RouterLink} 
+              to="/admin/tool-submissions"
+              onClick={handleSettingsClose}
+            >
+              Review Tool Submissions
+            </MenuItem>
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+          </>
+        ) : (
+          // Regular user settings menu
+          <>
+            <MenuItem 
+              component={RouterLink} 
+              to="/submit-tool"
+              onClick={handleSettingsClose}
+            >
+              Submit a Tool
+            </MenuItem>
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+          </>
+        )}
+      </Menu>
+    );
+  };
+
+  const renderUserMenu = () => {
+    const userRole = localStorage.getItem('role');
+
+    return (
+      <Menu
+        id="menu-appbar"
+        anchorEl={anchorEl}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        keepMounted
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        open={Boolean(anchorEl)}
+        onClose={handleClose}
+      >
+        <MenuItem onClick={handleProfile}>Profile</MenuItem>
+        {userRole !== 'admin' && (
+          <MenuItem onClick={handleClose} component={RouterLink} to="/reservations">
+            Reservations
+          </MenuItem>
+        )}
+      </Menu>
+    );
+  };
+
   return (
     <AppBar position="static" sx={{ 
       backgroundColor: 'transparent', 
@@ -282,24 +360,7 @@ const Navbar = () => {
             >
               <AccountCircleIcon />
             </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorEl}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'right',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={Boolean(anchorEl)}
-              onClose={handleClose}
-            >
-              <MenuItem onClick={handleProfile}>Profile</MenuItem>
-              <MenuItem onClick={handleClose} component={RouterLink} to="/reservations">Reservations</MenuItem>
-            </Menu>
+            {renderUserMenu()}
             <IconButton 
               onClick={handleSettingsMenu}
               sx={{ 
@@ -311,23 +372,7 @@ const Navbar = () => {
             >
               <SettingsIcon />
             </IconButton>
-            <Menu
-              id="settings-menu"
-              anchorEl={settingsAnchorEl}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'right',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={Boolean(settingsAnchorEl)}
-              onClose={handleSettingsClose}
-            >
-              <MenuItem onClick={handleLogout}>Logout</MenuItem>
-            </Menu>
+            {renderSettingsMenu()}
           </>
         ) : (
           <Button 

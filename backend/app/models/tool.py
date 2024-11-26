@@ -30,13 +30,13 @@ class Tool(Base):
     id = Column(Integer, primary_key=True, index=True)
     
     # Name of the tool, indexed for faster search performance
-    name = Column(String, index=True)
+    name = Column(String, nullable=False)
     
     # Brief description of the tool, explaining its purpose or features
     description = Column(String)
     
     # Category to which the tool belongs (e.g., "Software", "Hardware"), also indexed
-    category = Column(String, index=True)
+    category = Column(String)
     
     # Foreign key connecting each tool to its owner's user ID
     owner_id = Column(Integer, ForeignKey("users.id"))
@@ -47,6 +47,8 @@ class Tool(Base):
     is_available = Column(Boolean, default=True)
 
     reservations = relationship("Reservation", back_populates="tool")
+
+    condition = Column(String)
 
 
    

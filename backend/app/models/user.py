@@ -59,3 +59,6 @@ class User(Base):
 
     # Add the relationship to Reservation
     reservations = relationship("Reservation", back_populates="user")
+
+    # Add this to your existing User class
+    tool_submissions = relationship("ToolSubmission", back_populates="user")

@@ -7,6 +7,7 @@ from app.models.tool import Tool
 from app.models.reservation import Reservation
 from app.models.user import User
 from app.core.auth import get_current_user
+from app.models.tool_submission import ToolSubmission
 
 router = APIRouter()
 
@@ -49,13 +50,19 @@ def get_admin_statistics(
         .all()
     )
 
+    # Get count of tools in review
+    tools_in_review = db.query(ToolSubmission).filter(
+        ToolSubmission.status == "pending"
+    ).count()
+
     return {
         "total_tools": total_tools,
         "active_reservations": active_reservations,
         "total_users": total_users,
         "tool_stats": {
             "available": available_tools,
-            "checked_out": checked_out_tools
+            "checked_out": checked_out_tools,
+            "in_review": tools_in_review
         },
         "monthly_reservations": monthly_reservations,
         "active_users": [

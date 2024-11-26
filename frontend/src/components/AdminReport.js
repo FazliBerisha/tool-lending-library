@@ -150,7 +150,7 @@ const AdminReport = () => {
               </Divider>
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={4}>
               <StatCard
                 icon={<BuildIcon />}
                 title="Available Tools"
@@ -160,13 +160,23 @@ const AdminReport = () => {
               />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={4}>
               <StatCard
                 icon={<WarningIcon />}
                 title="Checked Out Tools"
                 value={stats.tool_stats.checked_out}
                 color="warning"
                 subtitle="Currently in use"
+              />
+            </Grid>
+
+            <Grid item xs={12} md={4}>
+              <StatCard
+                icon={<CategoryIcon />}
+                title="Tools In Review"
+                value={stats.tool_stats.in_review || 0}
+                color="info"
+                subtitle="Pending approval"
               />
             </Grid>
           </>

@@ -13,6 +13,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import ReservationPanel from './components/ReservationPanel';
 import AdminReport from './components/AdminReport'; 
 import Blog from './components/Blog';
+import ToolSubmissionForm from './components/ToolSubmissionForm';
+import AdminToolSubmissions from './components/AdminToolSubmissions';
 
 const theme = createTheme({
   palette: {
@@ -65,6 +67,22 @@ function App() {
             } 
           />
           <Route path="/blog" element={<Blog />} />
+          <Route 
+            path="/submit-tool" 
+            element={
+              <ProtectedRoute>
+                <ToolSubmissionForm />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/tool-submissions" 
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminToolSubmissions />
+              </ProtectedRoute>
+            } 
+          />
         </Routes>
       </Router>
     </ThemeProvider>
