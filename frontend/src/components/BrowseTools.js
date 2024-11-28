@@ -94,6 +94,11 @@ const BrowseTools = () => {
     navigate('/reservations', { state: { selectedToolId: toolId } });
   };
 
+  // Add this helper function at the component level, before the return statement
+  const formatCategory = (category) => {
+    return categories.find(cat => cat.toLowerCase().includes(category.toLowerCase())) || category;
+  };
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
@@ -200,7 +205,7 @@ const BrowseTools = () => {
                   {tool.description}
                 </Typography>
                 <Typography variant="caption" color="primary" sx={{ mt: 1, display: 'block' }}>
-                  {tool.category}
+                  {formatCategory(tool.category)}
                 </Typography>
                 <Button
                   variant="contained"
