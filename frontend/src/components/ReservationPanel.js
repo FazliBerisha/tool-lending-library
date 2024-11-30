@@ -13,9 +13,12 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TableRow
+  TableRow,
+  Chip
 } from '@mui/material';
 import { useLocation } from 'react-router-dom';
+import CheckoutModal from './CheckoutModal';
+import ReturnModal from './ReturnModal';
 
 const ReservationPanel = () => {
   const [tools, setTools] = useState([]);
@@ -27,6 +30,10 @@ const ReservationPanel = () => {
   const location = useLocation();
   const selectedToolId = location.state?.selectedToolId;
   const [selectedToolName, setSelectedToolName] = useState('');
+  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+  const [selectedCheckoutTool, setSelectedCheckoutTool] = useState(null);
+  const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
+  const [selectedReturnTool, setSelectedReturnTool] = useState(null);
 
   useEffect(() => {
     if (selectedToolId) {
@@ -90,7 +97,7 @@ const ReservationPanel = () => {
 
       if (!response.ok) throw new Error('Failed to reserve tool');
       
-      setSuccess('Tool reserved successfully!');
+      setSuccess('Tool reserved successfully! Please note: Reservations are automatically cancelled if not checked out within 24 hours.');
       setSelectedTool(null);
       setReservationDate('');
       fetchTools();
@@ -102,9 +109,32 @@ const ReservationPanel = () => {
 
   // Check out a tool
   const handleCheckout = async (toolId) => {
+    const selectedTool = reservations.find(r => r.tool_id === toolId)?.tool;
+    setSelectedCheckoutTool({
+      id: toolId,
+      name: selectedTool?.name || 'Unknown Tool'
+    });
+    setIsCheckoutModalOpen(true);
+  };
+
+  // Return a tool
+  const handleReturn = async (toolId) => {
+    const selectedTool = reservations.find(r => r.tool_id === toolId)?.tool;
+    setSelectedReturnTool({
+      id: toolId,
+      name: selectedTool?.name || 'Unknown Tool'
+    });
+    setIsReturnModalOpen(true);
+  };
+
+  const handleConfirmCheckout = async () => {
     try {
+      if (!selectedCheckoutTool?.id) {
+        throw new Error('No tool selected');
+      }
+
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:8000/api/v1/reservations/checkout/${toolId}`, {
+      const response = await fetch(`http://localhost:8000/api/v1/reservations/checkout/${selectedCheckoutTool.id}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -120,8 +150,32 @@ const ReservationPanel = () => {
     }
   };
 
-  // Return a tool
-  const handleReturn = async (toolId) => {
+  const handleConfirmReturn = async (formData) => {
+    try {
+      if (!selectedReturnTool?.id) {
+        throw new Error('No tool selected');
+      }
+
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:8000/api/v1/reservations/return/${selectedReturnTool.id}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) throw new Error('Failed to submit return request');
+      
+      setSuccess('Return request submitted successfully! Waiting for admin approval.');
+      fetchReservations();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  // Add this new function with your other handlers
+  const handleCancelReservation = async (toolId) => {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(`http://localhost:8000/api/v1/reservations/return/${toolId}`, {
@@ -131,10 +185,11 @@ const ReservationPanel = () => {
         }
       });
 
-      if (!response.ok) throw new Error('Failed to return tool');
+      if (!response.ok) throw new Error('Failed to cancel reservation');
       
-      setSuccess('Tool returned successfully!');
+      setSuccess('Reservation cancelled successfully!');
       fetchTools();
+      fetchReservations();
     } catch (err) {
       setError(err.message);
     }
@@ -161,6 +216,12 @@ const ReservationPanel = () => {
         </Typography>
 
         <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <Alert severity="warning" sx={{ mb: 2 }}>
+              Important: Tools must be checked out within 24 hours of reservation or the reservation will be automatically cancelled.
+            </Alert>
+          </Grid>
+
           <Grid item xs={12}>
             <TextField
               fullWidth
@@ -198,6 +259,11 @@ const ReservationPanel = () => {
               Reserve Tool
             </Button>
           </Grid>
+          <Grid item xs={12}>
+            <Typography variant="body2" color="warning.main" sx={{ mt: 1, mb: 2 }}>
+              Note: Reservations must be checked out within 24 hours or they will be automatically cancelled.
+            </Typography>
+          </Grid>
         </Grid>
 
         <Typography variant="h5" sx={{ mt: 4, mb: 2 }}>
@@ -222,6 +288,32 @@ const ReservationPanel = () => {
                   <TableCell>
                     {reservation.is_active && (
                       <>
+                        {!reservation.is_checked_out ? (
+                          <Button
+                            variant="contained"
+                            color="error"
+                            size="small"
+                            onClick={() => handleCancelReservation(reservation.tool_id)}
+                            sx={{ mr: 1 }}
+                          >
+                            Cancel
+                          </Button>
+                        ) : reservation.return_pending ? (
+                          <Chip
+                            label="Return Pending"
+                            color="warning"
+                            size="small"
+                          />
+                        ) : (
+                          <Button
+                            variant="contained"
+                            color="secondary"
+                            size="small"
+                            onClick={() => handleReturn(reservation.tool_id)}
+                          >
+                            Return
+                          </Button>
+                        )}
                         {!reservation.is_checked_out && (
                           <Button
                             variant="contained"
@@ -232,14 +324,6 @@ const ReservationPanel = () => {
                             Check Out
                           </Button>
                         )}
-                        <Button
-                          variant="contained"
-                          color="secondary"
-                          size="small"
-                          onClick={() => handleReturn(reservation.tool_id)}
-                        >
-                          Return
-                        </Button>
                       </>
                     )}
                   </TableCell>
@@ -249,6 +333,20 @@ const ReservationPanel = () => {
           </Table>
         </TableContainer>
       </Paper>
+
+      <CheckoutModal
+        open={isCheckoutModalOpen}
+        onClose={() => setIsCheckoutModalOpen(false)}
+        onConfirm={handleConfirmCheckout}
+        toolName={selectedCheckoutTool?.name || ''}
+      />
+      
+      <ReturnModal
+        open={isReturnModalOpen}
+        onClose={() => setIsReturnModalOpen(false)}
+        onConfirm={handleConfirmReturn}
+        toolName={selectedReturnTool?.name || ''}
+      />
     </Container>
   );
 };

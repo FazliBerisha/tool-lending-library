@@ -128,10 +128,9 @@ const ToolSubmissionForm = () => {
             margin="normal"
             required
           >
-            <MenuItem value="power">Power Tools</MenuItem>
-            <MenuItem value="hand">Hand Tools</MenuItem>
-            <MenuItem value="garden">Garden Tools</MenuItem>
-            {/* Add more categories as needed */}
+            <MenuItem value="Hand Tools">Hand Tools</MenuItem>
+            <MenuItem value="Power Tools">Power Tools</MenuItem>
+            <MenuItem value="Garden Tools">Garden Tools</MenuItem>
           </TextField>
           <TextField
             fullWidth

@@ -145,7 +145,7 @@ class ToolService:
     @staticmethod
     def delete_tool(db: Session, tool_id: int):
         """
-        Deletes a tool from the database.
+        Deletes a tool and its associated reservations from the database.
 
         Parameters:
         - `db` (Session): The database session for deletion.
@@ -154,12 +154,23 @@ class ToolService:
         Returns:
         - True if the tool was deleted, otherwise False.
         """
-        db_tool = db.query(Tool).filter(Tool.id == tool_id).first()
-        if db_tool is None:
-            return False  # Tool not found
-        db.delete(db_tool)  # Delete tool
-        db.commit()  # Commit transaction
-        return True
+        try:
+            # First, delete associated reservations
+            db.query(Reservation).filter(Reservation.tool_id == tool_id).delete()
+            
+            # Then delete the tool
+            db_tool = db.query(Tool).filter(Tool.id == tool_id).first()
+            if db_tool is None:
+                return False  # Tool not found
+            
+            db.delete(db_tool)  # Delete tool
+            db.commit()  # Commit transaction
+            return True
+            
+        except Exception as e:
+            db.rollback()  # Rollback in case of error
+            print(f"Error deleting tool: {str(e)}")  # For debugging
+            return False
     
     @staticmethod
     def check_out_tool(db: Session, tool_id: int, user_id: int):

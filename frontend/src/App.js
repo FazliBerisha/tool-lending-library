@@ -15,6 +15,7 @@ import AdminReport from './components/AdminReport';
 import Blog from './components/Blog';
 import ToolSubmissionForm from './components/ToolSubmissionForm';
 import AdminToolSubmissions from './components/AdminToolSubmissions';
+import AdminToolReturns from './components/AdminToolReturns';
 
 const theme = createTheme({
   palette: {
@@ -83,6 +84,11 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          <Route path="/admin/returns" element={
+            <ProtectedRoute>
+              <AdminToolReturns />
+            </ProtectedRoute>
+          } />
         </Routes>
       </Router>
     </ThemeProvider>

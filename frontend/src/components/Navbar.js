@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AppBar, Toolbar, Typography, Button, IconButton, Box, Menu, MenuItem } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, IconButton, Box, Menu, MenuItem, ListItemIcon } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
 import BuildIcon from '@mui/icons-material/Build';
@@ -7,6 +7,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ArticleIcon from '@mui/icons-material/Article';
 import InfoIcon from '@mui/icons-material/Info';
+import AssignmentReturn from '@mui/icons-material/AssignmentReturn';
 
 const Navbar = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -73,6 +74,11 @@ const Navbar = () => {
     setSettingsAnchorEl(null);
   };
 
+  const handleNavigate = (path) => {
+    handleClose();
+    navigate(path);
+  };
+
   // Update the Settings menu to include different options based on user role
   const renderSettingsMenu = () => {
     const userRole = localStorage.getItem('role');
@@ -102,6 +108,12 @@ const Navbar = () => {
               onClick={handleSettingsClose}
             >
               Review Tool Submissions
+            </MenuItem>
+            <MenuItem onClick={() => handleNavigate('/admin/returns')}>
+              <ListItemIcon>
+                <AssignmentReturn fontSize="small" />
+              </ListItemIcon>
+              Review Tool Returns
             </MenuItem>
             <MenuItem onClick={handleLogout}>Logout</MenuItem>
           </>
@@ -142,11 +154,9 @@ const Navbar = () => {
         onClose={handleClose}
       >
         <MenuItem onClick={handleProfile}>Profile</MenuItem>
-        {userRole !== 'admin' && (
-          <MenuItem onClick={handleClose} component={RouterLink} to="/reservations">
-            Reservations
-          </MenuItem>
-        )}
+        <MenuItem onClick={handleClose} component={RouterLink} to="/reservations">
+          Reservations
+        </MenuItem>
       </Menu>
     );
   };

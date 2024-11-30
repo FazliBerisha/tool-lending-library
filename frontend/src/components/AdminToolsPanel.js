@@ -9,10 +9,18 @@ import {
   Alert,
   Snackbar,
   Grid,
-  MenuItem
+  MenuItem,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Chip,
+  Divider
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import BuildIcon from '@mui/icons-material/Build';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const categories = [
   'Power Tools',
@@ -136,23 +144,30 @@ const AdminToolsPanel = () => {
     }
   };
 
+  // Group tools by category
+  const toolsByCategory = tools.reduce((acc, tool) => {
+    if (!acc[tool.category]) {
+      acc[tool.category] = [];
+    }
+    acc[tool.category].push(tool);
+    return acc;
+  }, {});
+
   return (
-    <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      <Snackbar
-        open={!!success}
-        autoHideDuration={6000}
-        onClose={() => setSuccess('')}
-        message={success}
-      />
-
-      <Paper elevation={3} sx={{ p: 4 }}>
-        <Typography variant="h4" gutterBottom>
-          Tool Management
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      {/* Create Tool Form */}
+      <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
+        <Typography variant="h5" gutterBottom sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 1,
+          color: 'primary.main' 
+        }}>
+          <AddIcon />
+          Add New Tool
         </Typography>
-
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}>
             <TextField
               fullWidth
               label="Tool Name"
@@ -160,17 +175,7 @@ const AdminToolsPanel = () => {
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             />
           </Grid>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Description"
-              multiline
-              rows={3}
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            />
-          </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={12} md={4}>
             <TextField
               fullWidth
               select
@@ -179,113 +184,173 @@ const AdminToolsPanel = () => {
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
             >
               {categories.map((cat) => (
-                <MenuItem key={cat} value={cat}>
-                  {cat}
-                </MenuItem>
+                <MenuItem key={cat} value={cat}>{cat}</MenuItem>
               ))}
             </TextField>
           </Grid>
-        </Grid>
-
-        <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleCreateTool}
-          >
-            Create Tool
-          </Button>
-          <Button
-            variant="outlined"
-            startIcon={<AutoAwesomeIcon />}
-            onClick={handleCreateSampleTools}
-          >
-            Create Sample Tools
-          </Button>
-        </Box>
-
-        {/* List of existing tools */}
-        <Box sx={{ mt: 4 }}>
-          <Typography variant="h5" gutterBottom>
-            Existing Tools
-          </Typography>
-          <Grid container spacing={2}>
-            {tools.map((tool) => (
-              <Grid item xs={12} key={tool.id}>
-                <Paper sx={{ p: 2 }}>
-                  {editingTool === tool.id ? (
-                    // Edit form
-                    <Grid container spacing={2}>
-                      <Grid item xs={12}>
-                        <TextField
-                          fullWidth
-                          label="Tool Name"
-                          value={formData.name}
-                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <TextField
-                          fullWidth
-                          label="Description"
-                          multiline
-                          rows={3}
-                          value={formData.description}
-                          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <TextField
-                          fullWidth
-                          select
-                          label="Category"
-                          value={formData.category}
-                          onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                        >
-                          {categories.map((cat) => (
-                            <MenuItem key={cat} value={cat}>
-                              {cat}
-                            </MenuItem>
-                          ))}
-                        </TextField>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <Button onClick={() => handleUpdateTool(tool.id)}>Save</Button>
-                        <Button onClick={() => setEditingTool(null)}>Cancel</Button>
-                      </Grid>
-                    </Grid>
-                  ) : (
-                    // Display tool
-                    <Box display="flex" justifyContent="space-between" alignItems="center">
-                      <Box>
-                        <Typography variant="h6">{tool.name}</Typography>
-                        <Typography color="textSecondary">{tool.description}</Typography>
-                        <Typography color="primary">{tool.category}</Typography>
-                      </Box>
-                      <Box>
-                        <Button 
-                          onClick={() => {
-                            setEditingTool(tool.id);
-                            setFormData(tool);
-                          }}
-                        >
-                          Edit
-                        </Button>
-                        <Button 
-                          color="error"
-                          onClick={() => handleDeleteTool(tool.id)}
-                        >
-                          Delete
-                        </Button>
-                      </Box>
-                    </Box>
-                  )}
-                </Paper>
-              </Grid>
-            ))}
+          <Grid item xs={12} md={4}>
+            <TextField
+              fullWidth
+              label="Description"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            />
           </Grid>
-        </Box>
+          <Grid item xs={12}>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={handleCreateTool}
+              sx={{ mt: 1 }}
+            >
+              Create Tool
+            </Button>
+          </Grid>
+        </Grid>
       </Paper>
+
+      {/* Tools by Category */}
+      <Paper elevation={3} sx={{ p: 3 }}>
+        <Typography variant="h5" gutterBottom sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 1,
+          color: 'primary.main',
+          mb: 3 
+        }}>
+          <BuildIcon />
+          Manage Tools
+        </Typography>
+
+        {categories.map((category) => (
+          <Accordion key={category} sx={{ mb: 2 }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Typography variant="h6">{category}</Typography>
+                <Chip 
+                  label={toolsByCategory[category]?.length || 0}
+                  color="primary"
+                  size="small"
+                />
+              </Box>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Grid container spacing={2}>
+                {toolsByCategory[category]?.map((tool) => (
+                  <Grid item xs={12} key={tool.id}>
+                    <Paper 
+                      elevation={1} 
+                      sx={{ 
+                        p: 2,
+                        '&:hover': {
+                          boxShadow: 3,
+                          transition: 'box-shadow 0.3s ease-in-out'
+                        }
+                      }}
+                    >
+                      {editingTool === tool.id ? (
+                        <Grid container spacing={2} alignItems="center">
+                          <Grid item xs={12} md={4}>
+                            <TextField
+                              fullWidth
+                              label="Tool Name"
+                              value={formData.name}
+                              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            />
+                          </Grid>
+                          <Grid item xs={12} md={4}>
+                            <TextField
+                              fullWidth
+                              label="Description"
+                              value={formData.description}
+                              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                            />
+                          </Grid>
+                          <Grid item xs={12} md={4}>
+                            <Box sx={{ display: 'flex', gap: 1 }}>
+                              <Button 
+                                variant="contained"
+                                onClick={() => handleUpdateTool(tool.id)}
+                              >
+                                Save
+                              </Button>
+                              <Button 
+                                variant="outlined"
+                                onClick={() => setEditingTool(null)}
+                              >
+                                Cancel
+                              </Button>
+                            </Box>
+                          </Grid>
+                        </Grid>
+                      ) : (
+                        <Box display="flex" justifyContent="space-between" alignItems="center">
+                          <Box>
+                            <Typography variant="h6">{tool.name}</Typography>
+                            <Typography color="text.secondary" variant="body2">
+                              {tool.description}
+                            </Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Button 
+                              startIcon={<EditIcon />}
+                              onClick={() => {
+                                setEditingTool(tool.id);
+                                setFormData(tool);
+                              }}
+                              color="primary"
+                              variant="outlined"
+                              size="small"
+                            >
+                              Edit
+                            </Button>
+                            <Button 
+                              startIcon={<DeleteIcon />}
+                              onClick={() => handleDeleteTool(tool.id)}
+                              color="error"
+                              variant="outlined"
+                              size="small"
+                            >
+                              Delete
+                            </Button>
+                          </Box>
+                        </Box>
+                      )}
+                    </Paper>
+                  </Grid>
+                ))}
+                {!toolsByCategory[category]?.length && (
+                  <Grid item xs={12}>
+                    <Typography color="text.secondary" align="center">
+                      No tools in this category
+                    </Typography>
+                  </Grid>
+                )}
+              </Grid>
+            </AccordionDetails>
+          </Accordion>
+        ))}
+      </Paper>
+
+      <Snackbar
+        open={!!error || !!success}
+        autoHideDuration={6000}
+        onClose={() => {
+          setError(null);
+          setSuccess('');
+        }}
+      >
+        <Alert 
+          severity={error ? "error" : "success"} 
+          sx={{ width: '100%' }}
+          onClose={() => {
+            setError(null);
+            setSuccess('');
+          }}
+        >
+          {error || success}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };

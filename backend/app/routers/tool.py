@@ -69,7 +69,9 @@ def delete_tool(
 ):
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Not authorized to delete tools")
+    
     if not ToolService.delete_tool(db, tool_id):
         raise HTTPException(status_code=404, detail="Tool not found")
+    
     return Response(status_code=204)
 
