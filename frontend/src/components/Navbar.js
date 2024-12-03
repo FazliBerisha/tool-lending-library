@@ -109,6 +109,13 @@ const Navbar = () => {
             >
               Review Tool Submissions
             </MenuItem>
+            <MenuItem 
+              component={RouterLink} 
+              to="/submit-tool"
+              onClick={handleSettingsClose}
+            >
+              Submit a Tool
+            </MenuItem>
             <MenuItem onClick={handleLogout}>Logout</MenuItem>
           </>
         ) : (
