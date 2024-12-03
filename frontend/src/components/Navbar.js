@@ -109,12 +109,6 @@ const Navbar = () => {
             >
               Review Tool Submissions
             </MenuItem>
-            <MenuItem onClick={() => handleNavigate('/admin/returns')}>
-              <ListItemIcon>
-                <AssignmentReturn fontSize="small" />
-              </ListItemIcon>
-              Review Tool Returns
-            </MenuItem>
             <MenuItem onClick={handleLogout}>Logout</MenuItem>
           </>
         ) : (
