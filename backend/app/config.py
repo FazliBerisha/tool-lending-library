@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./sql_app.db"  # Database connection URL
     SECRET_KEY: str = "your-secret-key-here"  # Secret key for JWT encoding/decoding (replace with a secure key)
     ALGORITHM: str = "HS256"  # Algorithm used for JWT encoding
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30  # Token expiration time in minutes
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440  # Token expiration time in minutes
     VALID_ROLES: List[str] = ["user", "admin"]  # List of valid user roles
     PROJECT_NAME: str = "Tool Lending Library"  # Name of the project
 

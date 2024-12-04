@@ -172,6 +172,9 @@ const ToolSubmissionForm = () => {
               <MenuItem value="Hand Tools">Hand Tools</MenuItem>
               <MenuItem value="Power Tools">Power Tools</MenuItem>
               <MenuItem value="Garden Tools">Garden Tools</MenuItem>
+              <MenuItem value="Measurement Tools">Measurement Tools</MenuItem>
+              <MenuItem value="Safety Equipment">Safety Equipment</MenuItem>
+
             </TextField>
             <TextField
               select

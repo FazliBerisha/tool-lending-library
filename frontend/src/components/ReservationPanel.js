@@ -14,7 +14,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Chip
+  Chip,
+  Box
 } from '@mui/material';
 import { useLocation } from 'react-router-dom';
 import CheckoutModal from './CheckoutModal';
@@ -287,17 +288,25 @@ const ReservationPanel = () => {
                   <TableCell>{reservation.is_active ? 'Active' : 'Completed'}</TableCell>
                   <TableCell>
                     {reservation.is_active && (
-                      <>
+                      <Box sx={{ display: 'flex', gap: 1 }}>
                         {!reservation.is_checked_out ? (
-                          <Button
-                            variant="contained"
-                            color="error"
-                            size="small"
-                            onClick={() => handleCancelReservation(reservation.tool_id)}
-                            sx={{ mr: 1 }}
-                          >
-                            Cancel
-                          </Button>
+                          <>
+                            <Button
+                              variant="contained"
+                              color="error"
+                              size="small"
+                              onClick={() => handleCancelReservation(reservation.tool_id)}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              variant="contained"
+                              size="small"
+                              onClick={() => handleCheckout(reservation.tool_id)}
+                            >
+                              Check Out
+                            </Button>
+                          </>
                         ) : reservation.return_pending ? (
                           <Chip
                             label="Return Pending"
@@ -314,17 +323,7 @@ const ReservationPanel = () => {
                             Return
                           </Button>
                         )}
-                        {!reservation.is_checked_out && (
-                          <Button
-                            variant="contained"
-                            size="small"
-                            onClick={() => handleCheckout(reservation.tool_id)}
-                            sx={{ mr: 1 }}
-                          >
-                            Check Out
-                          </Button>
-                        )}
-                      </>
+                      </Box>
                     )}
                   </TableCell>
                 </TableRow>

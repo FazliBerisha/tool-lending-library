@@ -66,7 +66,7 @@ const ReturnModal = ({ open, onClose, onConfirm, toolName }) => {
       </DialogTitle>
       <DialogContent>
         <Alert severity="info" sx={{ mb: 2 }}>
-          Your return request will be reviewed by an admin before being finalized.
+          Your return request will be automatically approved.
         </Alert>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={12}>
